@@ -1,4 +1,4 @@
 public.web
 ==========
 
-The public facing website
+This repo holds the code for CEL’s public-facing website, built on Drupal 7.
