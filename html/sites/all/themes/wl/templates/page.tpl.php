@@ -34,11 +34,11 @@
             <?php if (empty($page['navigation'])): ?>
               <div class="nav-collapse">
                 <nav role="navigation">
-                <?php if ($primary_nav): ?>
-                  <?php print $primary_nav; ?>
+                <?php if (!empty($primary_nav)): ?>
+                  <?php print render($primary_nav); ?>
                 <?php endif; ?>
-                <?php if ($secondary_nav): ?>
-                  <?php print $secondary_nav; ?>
+                <?php if (!empty($secondary_nav)): ?>
+                  <?php print render($secondary_nav); ?>
                 <?php endif; ?>
                 </nav>
               </div>

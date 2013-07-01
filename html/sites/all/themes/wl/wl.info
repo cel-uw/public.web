@@ -1,7 +1,7 @@
 name = Where’s Lucian Base theme
 description = Built on top of the Bootstrap base theme, to be used with Panels.
 core = 7.x
-version = 7.x-1.0-beta6
+version = 7.x-1.0-beta7
 package = Where’s Lucian Base
 project = wl_editing_framework
 project status url = "http://whereslucian.com/projects"

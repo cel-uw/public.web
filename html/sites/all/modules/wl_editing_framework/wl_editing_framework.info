@@ -1,7 +1,7 @@
 name = Where’s Lucian Editing Framework
 core = 7.x
 package = Where’s Lucian Base
-version = 7.x-1.0-beta5
+version = 7.x-1.0-beta7
 project = wl_editing_framework
 project status url = "http://whereslucian.com/projects"
 dependencies[] = better_formats
