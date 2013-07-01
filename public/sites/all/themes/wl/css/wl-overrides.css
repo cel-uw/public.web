@@ -1,0 +1,14 @@
+body.toolbar
+{
+  padding-top: 34px !important;
+}
+
+body.toolbar-drawer
+{
+  padding-top: 99px !important;
+}
+
+.overlay-element.overlay-active
+{
+  margin-top: 50px;
+}

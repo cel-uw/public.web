@@ -1,0 +1,187 @@
+<?php
+/**
+ * @file
+ * Code for the feature.
+ */
+include_once 'wl_editing_framework.features.inc';
+
+/**
+ * Implementation of hook_menu()
+ *
+ * @return array An array of menu items
+ */
+function wl_editing_framework_menu() {
+  // Safety: go away if CTools is not at an appropriate version.
+  if(!defined('PANELS_REQUIRED_CTOOLS_API') || !module_invoke('ctools', 'api_version', PANELS_REQUIRED_CTOOLS_API)) {
+    return array();
+  }
+  $items = array();
+
+  $items['admin/structure/panels/settings/available-layouts'] = array(
+    'title' => 'Where’s Lucian Editing Framework',
+    'description' => 'Configure which layouts are available to content creators.',
+    'access arguments' => array('administer nodes'),
+    'page callback' => 'wl_editing_framework_settings',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory()
+ *
+ * @param string $owner The module name that owns a plugin
+ * @param string $plugin The plugin
+ * @return string Relative path to a plugin directory for a particular module/plugin combination
+ */
+function wl_editing_framework_ctools_plugin_directory($owner, $plugin) {
+  // Safety: go away if CTools is not at an appropriate version.
+  if(!defined('PANELS_REQUIRED_CTOOLS_API') || !module_invoke('ctools', 'api_version', PANELS_REQUIRED_CTOOLS_API)) {
+    return;
+  }
+  if($owner === 'panels') {
+    return "plugins/{$plugin}";
+  }
+}
+
+/**
+ * Settings page
+ *
+ * @return array An array representing the settings form
+ */
+function wl_editing_framework_settings() {
+  ctools_include('common', 'panels');
+  return drupal_get_form('wl_editing_framework_settings_form', 'wl_editing_framework');
+}
+
+/**
+ * Generates the form for the settings page
+ *
+ * @param array $form The existing form
+ * @param array &$form_state The form state
+ * @param string $module_name The module name
+ * @return array The modified form array
+ */
+function wl_editing_framework_settings_form($form, &$form_state, $module_name = 'wl_editing_framework') {
+  ctools_include('plugins', 'panels');
+  ctools_include('content');
+
+  panels_common_allowed_layouts_form($form, $form_state, $module_name);
+
+  $form['module_name'] = array(
+    '#type' => 'value',
+    '#value' => $module_name,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#weight' => 20
+  );
+
+  drupal_add_css(panels_get_path('css/panels_page.css'));
+  return $form;
+}
+
+/**
+ * Validate hook for wl_editing_framework_settings_form()
+ *
+ * @param array $form The form
+ * @param array &$form_state The form state
+ */
+function wl_editing_framework_settings_form_validate($form, &$form_state) {
+  panels_common_allowed_layouts_form_validate($form, $form_state);
+}
+
+/**
+ * Submit hook for wl_editing_framework_settings_form()
+ *
+ * @param array $form The form
+ * @param array &$form_state The form state
+ */
+function wl_editing_framework_settings_form_submit($form, &$form_state) {
+  panels_common_allowed_layouts_form_submit($form, $form_state);
+  drupal_set_message(t('Your changes have been saved.'));
+}
+
+/**
+ * Function to provide the available values for the layout field
+ *
+ * @return array Array of values
+ */
+function wl_editing_framework_field_layout_vals() {
+  if (!defined('PANELS_REQUIRED_CTOOLS_API') || !module_invoke('ctools', 'api_version', PANELS_REQUIRED_CTOOLS_API)) {
+    return array();
+  }
+
+  ctools_include('plugins', 'panels');
+  ctools_include('common', 'panels');
+
+  $layouts = panels_common_get_allowed_layouts('wl_editing_framework');
+  if(empty($layouts)) {
+    return array(0 => 'Simple');
+  }
+
+  $options = array();
+  foreach ($layouts as $id => $layout) {
+    $options[$id] = panels_print_layout_icon($id, $layout, check_plain($layout['title']));
+  }
+
+  uksort($options, 'wl_editing_framework_sort_layout_vals');
+  return $options;
+}
+
+/**
+ * Function to sort layout values
+ *
+ * @param string $a
+ * @param string $b
+ * @return int
+ */
+function wl_editing_framework_sort_layout_vals($a, $b) {
+  if(substr($a, 0, 10) === 'bootstrap_') {
+    $a = substr($a, 10);
+  }
+
+  if(substr($b, 0, 10) === 'bootstrap_') {
+    $b = substr($b, 10);
+  }
+
+  if(empty($a) || $a === 'onecol') {
+    $a = 1;
+
+  } else if(substr($a, 0, 7) === 'onecol_') {
+    $a = 2;
+  
+  } else if(substr($a, 0, 7) === 'twocol_') {
+    $a = 3;
+  
+  } else if(substr($a, 0, 9) === 'threecol_') {
+    $a = 4;
+  
+  } else {
+    $a = 1000;
+  }
+  
+  if(empty($b) || $b === 'onecol') {
+    $b = 1;
+
+  } else if(substr($b, 0, 7) === 'onecol_') {
+    $b = 2;
+  
+  } else if(substr($b, 0, 7) === 'twocol_') {
+    $b = 3;
+  
+  } else if(substr($b, 0, 9) === 'threecol_') {
+    $b = 4;
+  
+  } else {
+    $b = 1000;
+  }
+  
+  if($a == $b) {
+    return strcasecmp($a, $b);
+  }
+  return ($a < $b) ? -1 : 1;
+}

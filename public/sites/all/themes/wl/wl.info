@@ -1,0 +1,29 @@
+name = Where’s Lucian Base theme
+description = Built on top of the Bootstrap base theme, to be used with Panels.
+core = 7.x
+version = 7.x-1.0-beta6
+package = Where’s Lucian Base
+project = wl_editing_framework
+project status url = "http://whereslucian.com/projects"
+base theme = bootstrap
+
+; Regions
+regions[navigation]     = 'Navigation'
+regions[header]         = 'Top Bar'
+regions[help]           = 'Help'
+regions[content]        = 'Content'
+regions[footer]         = 'Footer'
+
+; Settings for the jQuery CDN
+settings[cdn_jquery] = 1
+settings[cdn_jquery_version] = 1.10.1
+settings[cdn_jquery_migrate] = 1
+settings[cdn_jquery_migrate_version] = 1.2.1
+
+; CSS
+stylesheets[all][] = css/wl-overrides.css
+
+; Scripts
+scripts[] = js/spin.js
+scripts[] = js/jquery.fitvids.js
+
