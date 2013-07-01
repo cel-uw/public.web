@@ -1,0 +1,30 @@
+name = CEL
+description = A responsive design for the CEL website
+core = 7.x
+version = 7.x-1.0
+base theme = wl
+
+; CSS
+; Stylesheets
+stylesheets[all][] = css/bootstrap.min.css
+stylesheets[all][] = css/bootstrap-responsive.min.css
+; A copy of the wl-overrides in themes/wl/css and overrides.css in 
+; themes/bootstrap/css
+;
+; We have to keep a copy in our theme because we're using
+; a custom version of bootstrap.min.css :(
+;
+; If you upgrade the base bootstrap theme, you will need to
+; copy the file in bootstrap/css/overrides into
+; one_health_port/css/overrides.css
+;
+stylesheets[all][] = css/overrides.css
+stylesheets[all][] = css/wl-overrides.css
+stylesheets[all][] = css/style.css
+
+; Scripts
+scripts[] = js/bootstrap.min.js
+
+; Disabled the boostrap CDN
+settings[cdn_bootstrap] = 1
+
