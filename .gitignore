@@ -38,27 +38,27 @@ ehthumbs.db
 Thumbs.db
 
 # Ignore configuration files that may contain sensitive information.
-/public/sites/*/*settings*.php
+/html/sites/*/*settings*.php
 
 # Ignore paths that contain generated content.
-/public/cache/
-/public/files/
-/public/sites/*/files
-/public/sites/*/private
+/html/cache/
+/html/files/
+/html/sites/*/files
+/html/sites/*/private
 
 # Ignore default text files
-/public/.htaccess
-/public/robots.txt
-/public/CHANGELOG.txt
-/public/COPYRIGHT.txt
-/public/INSTALL*.txt
-/public/LICENSE.txt
-/public/MAINTAINERS.txt
-/public/UPGRADE.txt
-/public/README.txt
-/public/sites/all/README.txt
-/public/sites/all/modules/README.txt
-/public/sites/all/themes/README.txt
+/html/.htaccess
+/html/robots.txt
+/html/CHANGELOG.txt
+/html/COPYRIGHT.txt
+/html/INSTALL*.txt
+/html/LICENSE.txt
+/html/MAINTAINERS.txt
+/html/UPGRADE.txt
+/html/README.txt
+/html/sites/all/README.txt
+/html/sites/all/modules/README.txt
+/html/sites/all/themes/README.txt
 
 # Ignore everything but the "sites" folder ( for non core developer )
 web.config
@@ -68,9 +68,9 @@ index.php
 install.php
 update.php
 xmlrpc.php
-/public/includes
-/public/misc
-/public/modules
-/public/profiles
-/public/scripts
-/public/themes
+/html/includes
+/html/misc
+/html/modules
+/html/profiles
+/html/scripts
+/html/themes
