@@ -1,0 +1,72 @@
+/*
+ * IE7 doesn't recognize 'inherit' value
+ */
+body.front #header {
+  height: auto;
+}
+body.front #header #logo {
+  padding: 0;
+}
+
+/*
+ * disappearing backgrounds
+ */
+body.front #header-user-inner,
+body.front #content-inner,
+#sidebar-left .block,
+#sidebar-left .block-inner,
+body.front #sidebar-right .block,
+body.front #sidebar-right .block-inner,
+ {
+  zoom: 1;
+}
+
+/*
+ * button image replacement
+ */
+#header .block-search .form-submit {
+  height: 22px;
+}
+
+/*
+ * IE whitespace bug in search box
+ */
+.front #header .block-search .form-submit {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+}
+.front #header .block-search {
+  height: 40px;
+}
+
+/*
+ * IE z-index bug
+ */
+#navbar-inner {
+  z-index: 10;
+}
+#header {
+  z-index: 1;
+}
+
+/*
+ * empty mini-nav
+ */
+#mini-nav {
+  display: none;
+}
+
+#block-views-homepage_features-block_1 div.block-inner div.content div.view.view-homepage-features div.view-content div.views-row div.views-field-title a {
+	padding-top: 25px;
+	padding-bottom: 20px;
+}
+
+
+/**
+ * Social Media Footer
+ */
+
+#footer-inner .block-block div#social-media-footer {
+	padding: 8px 0;
+}

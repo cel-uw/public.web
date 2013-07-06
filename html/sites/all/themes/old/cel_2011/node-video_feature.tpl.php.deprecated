@@ -1,0 +1,32 @@
+<div class="node <?php print $node_classes; ?>" id="node-<?php print $node->nid; ?>"><div class="node-inner">
+
+  <?php if ($page == 0): ?>
+    <h2 class="title">
+      <a href="<?php print $node_url; ?>"><?php print $title; ?></a>
+    </h2>
+  <?php endif; ?>
+
+  <?php if ($unpublished): ?>
+    <div class="unpublished"><?php print t('Unpublished'); ?></div>
+  <?php endif; ?>
+
+  <div class="content">
+	<?php
+		drupal_add_js('sites/all/modules/videoasset/mediaplayer/swfobject.js');
+		$width = 240;
+		$height = 100;
+		$video_file = reset($node->files);
+  	?><p id='preview'>Watch Video</p>
+	        <script type='text/javascript'>
+
+	        var s1 = new SWFObject('<?php print url('sites/all/modules/videoasset/mediaplayer/player.swf');?>','player','<?php print $width;?>','<?php print $height;?>','9');
+			s1.addParam('allowfullscreen','true');
+			s1.addParam('allowscriptaccess','always');
+			s1.addParam('flashvars','file=<?php print file_create_url($video_file->filepath);?>');
+			s1.write('preview');
+	        </script>
+    <?php print $content; ?>
+  </div>
+
+
+</div></div> <!-- /node-inner, /node -->

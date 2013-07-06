@@ -1,0 +1,20 @@
+@CHARSET "UTF-8";
+
+#raterTableIdentifier {
+	display: none;
+}
+
+.cel-console-linkrow {
+	display: none;
+}
+
+.raterResponse {
+border:1px solid #000000;
+float:left;
+height:100%;
+margin-right:2em;
+overflow: none;
+width:100%;
+font-size: 1.0em;
+}
+

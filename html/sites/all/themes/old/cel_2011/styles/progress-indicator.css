@@ -1,0 +1,29 @@
+#progcontainer {
+  width: 100%;
+  text-align: right;
+}
+
+#proglist li
+{
+display: inline;
+list-style-type: none;
+padding: 1em;
+padding-bottom: 1.6em;
+background-repeat: no-repeat;
+background-position: center bottom;
+color: #9b8aac;
+font-size: .9em;
+font-family: helvetica;
+}
+
+#proglist li.completed { background-image: url(../images/prog_checked.gif); }
+#proglist li.active1 {	background-image: url(../images/prog_1_active.gif); font-weight: bold; color: #330066;}
+#proglist li.active2 {	background-image: url(../images/prog_2_active.gif); font-weight: bold; color: #330066;}
+#proglist li.active3 {	background-image: url(../images/prog_3_active.gif); font-weight: bold; color: #330066;}
+#proglist li.active4 {	background-image: url(../images/prog_4_active.gif); font-weight: bold; color: #330066;}
+#proglist li.active5 {	background-image: url(../images/prog_5_active.gif); font-weight: bold; color: #330066;}
+
+#proglist li.future2 {	background-image: url(../images/prog_2.gif); }
+#proglist li.future3 {	background-image: url(../images/prog_3.gif); }
+#proglist li.future4 {	background-image: url(../images/prog_4.gif); }
+#proglist li.future5 {	background-image: url(../images/prog_5.gif); }

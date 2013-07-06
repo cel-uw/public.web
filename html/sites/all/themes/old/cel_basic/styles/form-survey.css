@@ -1,0 +1,44 @@
+#cel-assessment-assessee-survey-form .form-item {
+	float:left;
+	margin:0 1.5em 1em;
+}
+
+#cel-assessment-assessee-survey-form #edit-current-position-other-wrapper {
+}
+
+#cel-assessment-assessee-survey-form fieldset.smallset {
+	float:left;
+	border: none;
+	clear: none;
+	padding: 0px;
+}
+
+#cel-assessment-assessee-survey-form fieldset.smallset .form-item {
+	float:none;
+}
+
+#cel-assessment-assessee-survey-form fieldset.labellike legend {
+	color: #111111;
+	text-transform: none;
+	padding-left: 1.5em;
+}
+
+#cel-assessment-assessee-survey-form .form-checkboxes .form-item {
+	width:320px;
+}
+
+#cel-assessment-assessee-survey-form #edit-certification1-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification2-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification3-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification4-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification5-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification6-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification7-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification8-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification9-wrapper {	clear: both; }
+#cel-assessment-assessee-survey-form #edit-certification10-wrapper { clear: both; }
+
+#cel-assessment-assessee-survey-form #addCert {margin-left:1.5em; }
+#cel-assessment-assessee-survey-form #addContent {margin-left:1.5em; }
+#cel-assessment-assessee-survey-form #edit-submit {margin-left:1.5em; }
+
