@@ -42,6 +42,19 @@ function wl_js_alter(&$js) {
 }
 
 /**
+ * Add in some variables for use in node.tpl.php
+ *
+ * Implements hook_preprocess_node()
+ *
+ * @param array &$vars
+ */
+function wl_preprocess_node(&$vars) {
+  $node = node_load($vars['nid']);
+
+  $vars = _wl_basic_preprocess_vars($node, $vars);
+}
+
+/**
  * Add in some variables for use in page.tpl.php
  *
  * Implements hook_preprocess_page()
@@ -52,36 +65,47 @@ function wl_preprocess_page(&$vars) {
   if(!module_exists('wl_editing_framework')) {
     drupal_set_message(t('The Where’s Lucian base theme requires the Where’s Lucian Editing Framework module to be installed.'), 'warning');
   }
-  
+
+  $node = false;
+  if(!empty($vars['node'])) {
+    $node = $vars['node'];
+  }
+  $vars = _wl_basic_preprocess_vars($node, $vars);
+}
+
+/**
+ * Add in basic vars for preprocess_page() and preprocess_node()
+ *
+ * Implements hook_preprocess_page()
+ *
+ * @param mixed $node
+ * @param array $vars
+ * @return array The modified vars
+ */
+function _wl_basic_preprocess_vars($node, $vars) {
   $new_vars = array(
     'wl_show_title' => true,
     'wl_add_colon_to_title' => false,
     'wl_subtitle' => '',
   );
 
-  $node = false;
-  if(!empty($vars['node'])) {
-    switch($vars['node']->type) {
-      case 'page':
-      case 'panel':
-        $node = $vars['node'];
-        break;
-    }
-  }
-
   if(!empty($node)) {
     //Get the titles
-    $show_title = field_get_items('node', $node, 'field_show_title');
-    $show_title = reset($show_title);
-    $new_vars['wl_show_title'] = !empty($show_title['value']);
+    $show_title_items = field_get_items('node', $node, 'field_show_title');
+    if(!empty($show_title_items)) {
+      $show_title = reset($show_title_items);
+      $new_vars['wl_show_title'] = !empty($show_title['value']);
+    }
 
-    $add_colon = field_get_items('node', $node, 'field_add_colon_to_title');
-    $add_colon = reset($add_colon);
-    $new_vars['wl_add_colon_to_title'] = !empty($add_colon_to_title['value']);
+    $add_colon_items = field_get_items('node', $node, 'field_add_colon_to_title');
+    if(!empty($add_colon_items)) {
+      $add_colon = reset($add_colon_items);
+      $new_vars['wl_add_colon_to_title'] = !empty($add_colon_to_title['value']);
+    }
 
-    $subtitle = field_get_items('node', $node, 'field_subtitle');
-    if(!empty($subtitle)) {
-      foreach($subtitle as $value) {
+    $subtitle_items = field_get_items('node', $node, 'field_subtitle');
+    if(!empty($subtitle_items)) {
+      foreach($subtitle_items as $value) {
         $new_vars['wl_subtitle'] .= render(
           field_view_value('node', $node, 'field_subtitle', $value)
         );
@@ -94,4 +118,6 @@ function wl_preprocess_page(&$vars) {
 
   //Merge in the new vars
   $vars = array_merge($vars, $new_vars);
+
+  return $vars;
 }
