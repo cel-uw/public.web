@@ -1,0 +1,1209 @@
+<?php 
+// load forms and helper files
+//   module_load_include('php', 'cel_5d_course_registration', 'cel_5d_forms');
+module_load_include('php', 'cel_5d_course_registration', 'cel_5d_helpers');
+module_load_include('php', 'cel_5d_course_registration', 'repos/subscription_repo');
+module_load_include('php', 'fuse_libs', 'classes/fuse_exception');
+
+
+/**
+ * Build 5D registration module menu sistem 
+ * 
+ * @return array  
+ */
+function cel_5d_course_registration_menu() 
+{
+  $items['5d-course/%/licences'] = array(
+      'title'   => '5D E-Learning Series Online Order Form',
+      'file'     => 'cel_5d_forms.php',
+      'type'     => MENU_NORMAL_ITEM,
+      'page callback'    => 'drupal_get_form',
+          'page arguments'   => array('cel_5d_course_registration_licences_form',1),
+      'access callback'   => true,
+      'description'     => 'Join a course.',
+  );
+  
+  //TRIALS MENUS
+  $items['5d-course/%/trial'] = array(
+      'title'   => '5D Course Trial Subscription',
+      'file'     => 'cel_5d_forms.php',
+      'type'     =>  MENU_NORMAL_ITEM,
+      'page callback'    => 'cel_5d_trial_page',
+      'page arguments'   => array(1),
+      'access callback'   => true,
+  );  
+  $items['5d-course/trial/register'] = array(
+      'title'   => '5D Course Trial User Registration',
+      'file'     => 'cel_5d_forms.php',
+      'type'     =>  MENU_NORMAL_ITEM,
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('user_register'),
+      'access callback'   => true,
+  );
+  $items['user/%user/5d-course/trial/start'] = array(
+      'title'   => 'Continue Trial Enrollment',
+      'page callback'    => 'user_tab_redirect',
+      'page arguments'   => array('trials_start'),
+        'access callback'   => 'user_access',
+        'access arguments'   => array('access continue trial enrollment tab'),
+        'type' => MENU_LOCAL_TASK,
+  );
+  $items['5d-course/trial/start'] = array(
+      'title'   => '5D Course Trial User Info',
+      'file'     => 'cel_5d_forms.php',
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('cel_5d_course_registration_licences_form', 473),
+      'access callback'   => 'user_access',
+      'access arguments'   => array('access continue trial enrollment tab'),
+      'type' => MENU_NORMAL_ITEM,
+  );  
+  
+  
+  // COURSE LOGIN / REGISTRATION TEMP
+  $items['user/%user/5d-course/registratoin/continue'] = array(
+      'title'   => 'Continue 5D E-Learning Series Purchase',
+      'page callback'    => 'user_tab_redirect',
+      'page arguments'   => array('continue_course_registration'),
+      'access callback'   => 'user_access',
+      'access arguments'   => array('access continue course registration tab'),
+      'type' => MENU_LOCAL_TASK,
+  );
+  $items['5d-course/%/course_registration'] = array(
+      'title'   => '5D Course User Registration',
+      'file'     => 'cel_5d_forms.php',
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('user_register'),
+      'access callback'   => true,
+      'type'     =>  MENU_NORMAL_ITEM,
+  );
+  $items['5d-course/%/course_login'] = array(
+      'title'   => '5D Course User Login',
+      'file'     => 'cel_5d_forms.php',
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('user_login'),
+      'access callback'   => true,
+      'type'     =>  MENU_NORMAL_ITEM,
+  );
+  $items['5d-course/trial_login'] = array(
+      'title'   => '5D Course Trial User Login',
+      'file'     => 'cel_5d_forms.php',
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('user_login'),
+      'access callback'   => true,
+      'type'     =>  MENU_NORMAL_ITEM,
+  );    
+  
+  
+  // AGGREEMENT 
+  $items['5d-course/%/agreement'] = array(
+      'title'   => '5D Course License Agreement',
+      'file'     => 'cel_5d_forms.php',
+      'type'     =>  MENU_NORMAL_ITEM,
+      'page callback'    => 'cel_5d_agreement_page',
+      'page arguments'   => array(1),
+      'access callback'   => true,
+  );    
+  
+  // PAYMENT
+  $items['5d-course/%/payment/card_info'] = array(
+      'title'   => 'Credit/Debit card information',
+//         'file'     => 'cel_5d_forms.php',
+      'type'     =>  MENU_NORMAL_ITEM,
+      'page callback'    => 'cel_5d_card_info',
+      'page arguments'   => array(1),
+      'access callback'   => true,
+  );  
+  $items['5d-course/%/payment/confirm'] = array(
+      'title'   => 'Order Confirmation Page',
+              'file'     => 'cel_5d_forms.php',
+      'type'     =>  MENU_NORMAL_ITEM,
+      'page callback'    => 'cel_5d_confirm',
+      'page arguments'   => array(1),
+      'access callback'   => true,
+  );
+    $items['user/%user/5d-courses'] = array(
+        'title' => '5D E-Learning Series',
+        'page callback' => 'user_tab_redirect',
+      'access callback' => 'user_access',
+        'access arguments' => array('access 5d user tab'),
+        'type' => MENU_LOCAL_TASK,
+      'weight' => 4,
+    );
+    $items['user/%user/5d-courses-buy-licence'] = array(
+        'title' => 'Buy 5D Licences',
+        'page callback' => 'user_tab_redirect',
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d buy licences tab'),
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 5,
+    );      
+//       $items['user/%user/5d-courses-manage-licenses'] = array(
+//           'title' => 'Manage Licenses',
+//           'page callback' => 'manage_licenses_page',
+//           'page arguments'   => array(1),
+//           'access callback' => 'user_access',
+//           'access arguments' => array('access 5d manage licenses tab'),
+//           'type' => MENU_LOCAL_TASK,
+//           'weight' => 6,
+//       );
+
+    //ROSTERS
+    $items['5d-courses-admin/rosters/trials'] = array(
+        'title' => '5D E-Learning Series Trials',
+        'page callback' => 'manage_trials_page',
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['5d-courses-admin/rosters/subscriptions'] = array(
+        'title' => '5D E-Learning Series Subscriptions',
+        'page callback' => 'roster_subscriptions_page',
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_NORMAL_ITEM,
+    );  
+    $items['5d-courses-admin/subscription/%/details'] = array(
+        'title' => '5D Subscription Details Page',
+        'page callback' => 'roster_subscription_details',
+        'page arguments'   => array(2),
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+    
+    
+    // AJAX URLs
+    $items['user/%user/%/5d-courses-manage-licenses-ajax'] = array(
+        'title' => 'AJAX',
+        'page callback' => 'manage_licenses_page_jqgrid_ajax',
+        'page arguments'   => array(1, 2),
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d manage licenses tab'),
+        'type' => MENU_CALLBACK,
+        'weight' => 6,
+    );    
+    $items['5d-courses-admin/rosters/trials_ajax'] = array(
+        'title' => 'Manage Trial Subsciptions Roster Page',
+        'page callback' => 'manage_trials_page_data',
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['5d-courses-admin/rosters/subscriptions_data'] = array(
+        'title' => 'Generate Subsciptions Roster Page Grid Data',
+        'page callback' => 'roster_subscriptions_page_data',
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    
+    //CSV export urls
+    $items['5d-courses-admin/rosters/trials_csv'] = array(
+        'title' => 'Download Trial CSV export',
+        'page callback' => 'manage_trials_page_data',
+        'page arguments'   => array('csv'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_CALLBACK,
+    );
+    $items['5d-courses-admin/rosters/subscriptions_csv'] = array(
+        'title' => 'Download Subscriptions CSV export',
+        'page callback' => 'roster_subscriptions_page_data',
+        'page arguments'   => array('csv'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access 5d roster reports'),
+        'type' => MENU_CALLBACK,
+    );      
+    
+    return $items;
+}
+
+
+/**
+ * defiing permissions functionality
+ */
+function cel_5d_course_registration_permission(){
+  return array(
+    'access 5d user tab' => array(
+    	'title' => t('Access 5D <i>User</i> tab'),
+    ),
+    'access 5d buy licences tab' => array(
+    	'title' => t('Access 5D <i>Buy licences</i> tab')
+    ),
+    'access 5d manage licenses tab' => array(
+    	'title' => t('Access 5D <i>Manage licenses</i> tab')
+    ),
+    'access 5d roster reports' => array(
+    	'title' => t('Access 5D roster reports')
+    ),
+    'access continue trial enrollment tab' => array(
+    	'title' => t('Access <i>Continue trial enrollment</i> tab')
+    ),
+    'access continue course registration tab' => array(
+    	'title' => t('Access <i>Continue course registration</i> tab'),
+    )
+  );
+}  
+
+
+/**
+ * Build a manage subscriotions page
+ * To be accessed by the Districts
+ * 
+ * @param stdObj $user_id
+ * @return string
+ */
+function manage_licenses_page($user)
+{
+  module_load_include('php', 'fuse_libs', 'jqgrid/fields/basic_field');
+  try 
+  {
+    $subscriptionRepo = new SubscriptionRepo();
+    
+    fuse_debug2($subscriptionRepo->getSubscriptionsByUserID($user->uid));
+    
+    // initialize new jQGrid object 
+    $safe_uid = (int) $user->uid;
+    $jqgridClass = new FuseJQGrid("/user/{$safe_uid}/55/5d-courses-manage-licenses-ajax");
+    
+    // set grid title
+    $jqgridClass->setGrid_title(t('Registrations Details Table '));
+    
+    // init id field
+    $idField = new BasicField('id');
+    $idField->setTitle('ID')
+        ->setWidth(20)
+        ->makeReadonly();
+    
+    $jqgridClass->addField($idField);
+    
+    
+    
+    // generate grid html
+    $out = $jqgridClass->render();
+  }
+  //catch exception
+  catch (FuseException $e){
+    fuse_debug2($e->getMessage());
+  }
+  
+  return $out;
+}
+
+
+/**
+ * Build a manage Trial subscriptions page
+ * To be accessed by the Districts
+ *
+ * @param stdObj $user_id
+ * @return string
+ */
+function manage_trials_page()
+{
+  module_load_include('php', 'fuse_libs', 'jqgrid/fields/basic_field');
+//     module_load_include('php', 'cel_5d_course_registration', 'repos/trial_repo');
+
+  try
+  {
+    // initialize new jQGrid object
+    $jqgridClass = new FuseJQGrid('/5d-courses-admin/rosters/trials_ajax');
+      
+    // set grid title
+    $jqgridClass->setGrid_title(t('List of trial subscriptions'))
+      ->defaultOrderField('uid')
+      ->setWidth(965);
+      
+
+    // ADDING FIELDS TO GRID OBJECT
+
+    // init trials Repo
+//       $trialRepo = new TrialRepo();
+//       $fields_definition_map = $trialRepo->buildRosterFieldsTitlesMethodsArrMap();
+    
+    
+    // add uid field
+    $idField = new BasicField('uid');
+    $idField->setTitle('User ID')
+        ->setWidth(3)
+        ->makeReadonly();
+    $jqgridClass->addField($idField);
+
+    // add First Name field
+    $firstNameField = new BasicField('profile_first_name');
+    $firstNameField->setTitle('First Name')
+      ->setWidth(5);
+    $jqgridClass->addField($firstNameField);  
+    
+    // add Last Name field
+    $lastNameField = new BasicField('profile_last_name');
+    $lastNameField->setTitle('Last Name')
+      ->setWidth(5);
+    $jqgridClass->addField($lastNameField);      
+    
+    // add Position field
+    $positionField = new BasicField('profile_current_position');
+    $positionField->setTitle('Current Position')
+      ->makeUnsortable()
+      ->setWidth(7);
+    $jqgridClass->addField($positionField);      
+    
+    // add Organization field
+    $organizationField = new BasicField('profile_organization');
+    $organizationField->setTitle('Organization')
+      ->makeUnsortable()
+      ->setWidth(7);
+    $jqgridClass->addField($organizationField);      
+    
+    // add Email field
+    $emailField = new BasicField('mail');
+    $emailField->setTitle('Email')
+      ->setWidth(7);
+    $jqgridClass->addField($emailField);      
+    
+    // add Start Date field
+    $startDateField = new BasicField('start_date');
+    $startDateField->setTitle('Start Date')
+      ->setWidth(5);
+    $jqgridClass->addField($startDateField);      
+    
+    // add Expire Date field
+    $expireDateField = new BasicField('expire_date');
+    $expireDateField->setTitle('Expire Date')
+      ->setWidth(5);
+    $jqgridClass->addField($expireDateField);
+    
+    $out = '<div>'.l('Download in .csv format', '5d-courses-admin/rosters/trials_csv'); 
+    
+    // generate grid html
+    $out .= $jqgridClass->render();
+  }
+  //catch exception
+  catch (FuseException $e){
+    fuse_debug2($e->getMessage());
+  }
+
+  return $out;
+}
+  
+
+function roster_subscriptions_page()
+{
+  module_load_include('php', 'fuse_libs', 'jqgrid/fields/basic_field');
+  
+  $subscriptionRepo = new SubscriptionRepo();
+  
+  $fields_deffinition_arr = $subscriptionRepo->buildFieldsRelationalMap();
+  
+  
+  try
+  {
+    // initialize new jQGrid object
+    $jqgridClass = new FuseJQGrid('/5d-courses-admin/rosters/subscriptions_data');
+  
+    // set grid title
+    $jqgridClass->setGrid_title(t('List of subscriptions'))
+      ->defaultOrderField('subscriber_uid')
+      ->setWidth(965);  
+
+    
+    foreach ($fields_deffinition_arr as $name=>$title)
+    {
+      // add new field
+      $fieldObj = new BasicField($name);
+      $fieldObj->setTitle($title);
+      
+      // make unsortable Organization and Current position
+      if($name == 'profile_current_position' || $name == 'profile_organization' || $name == 'registrar_organization' ){
+        $fieldObj->makeUnsortable();
+      }elseif($name == 'subscriber_uid'){
+        // set width value
+        $fieldObj->setWidth(40);
+      }
+      
+      
+      
+//         ->setWidth(5);
+      $jqgridClass->addField($fieldObj);
+    }
+    
+    
+    $out = '<div>'.l('Download in .csv format', '5d-courses-admin/rosters/subscriptions_csv');
+      
+    // generate grid html
+    $out .= $jqgridClass->render();
+  }
+  //catch exception
+  catch (FuseException $e){
+    fuse_debug2($e->getMessage());
+  }
+  
+  return $out;
+  
+}
+
+
+function roster_subscriptions_page_data($csv=FALSE)
+{
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscriber_repo');
+  $subscriptionRepo   = new SubscriptionRepo();
+  
+  // define default request params
+  $cur_page     = $_REQUEST['page'] ? intval($_REQUEST['page']) : 1;
+  $rows_per_pg   = $_REQUEST['rows'] ? intval($_REQUEST['rows']) : 10;
+  $sort_field    = $_REQUEST['sidx'] ? $_REQUEST['sidx'] : 'subscriber_uid';
+  $sort_direction  = $_REQUEST['sord'] ? $_REQUEST['sord'] : 'asc';
+
+  
+  if($csv){
+    $rows_per_pg = 10000;
+  }
+
+  $records = roster_subscriptions_page_data_get_records($sort_field, $sort_direction, $rows_per_pg, $cur_page);
+  
+  if($csv){
+    $records = roster_subscriptions_page_data_get_records($sort_field, $sort_direction, $rows_per_pg, $cur_page, $csv);      
+  }
+
+  $total_records = $records['total_records'];
+  unset($records['total_records']);
+  
+  // get fields definition map arr
+  $fields_definition_map = $subscriptionRepo->buildFieldsRelationalMap();
+  
+  
+  // if this is a csv version then generate csv
+  if($csv)
+  {
+    $filename = '5d-course_subscriptions_export_'.date('m-d-Y_H-i').'.csv';
+    header("Content-type: application/csv");
+    header("Content-Disposition: attachment; filename=".$filename);
+    header("Pragma: no-cache");
+    header("Expires: 0");
+  
+    echo implode(',', $fields_definition_map)."\n";
+      
+    foreach ($records as $row){
+      print implode(',', $row['cell'])."\n";
+    }
+    die;
+  }
+  
+  $outResult = new stdClass();
+  $outResult->page   = $cur_page;
+  $outResult->total   = ceil( $total_records / $rows_per_pg );
+  $outResult->records = $total_records;
+  $outResult->rows  = $records;
+  
+  print( json_encode($outResult) );
+  
+}
+
+
+function roster_subscriptions_page_data_get_records($sort_field, $sort_direction, $rows_per_pg, $cur_page, $csv=false)
+{
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscriber_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/purchaser_repo');
+  
+  // initialize Repos
+  $subscriberRepo   = new SubscriberRepo();
+  $subscriptionRepo   = new SubscriptionRepo();
+  $purchaserRepo     = new PurchaserRepo();
+  
+  // get list of all the subcriptions with all additional data
+  $all_subscriptions_arr = $subscriptionRepo->getRosterSubscriptionsForGridJson($sort_field, $sort_direction, $rows_per_pg, $cur_page);
+
+  
+//     fuse_debug2($total_records);
+  
+  // validate array of subscriptions
+  if(!$all_subscriptions_arr || empty($all_subscriptions_arr)){
+    return FALSE;
+  }
+  
+  
+  // total velid records counter
+  $total_valid_records = 0;
+  $records = array();
+  
+  $records['total_records'] = $subscriptionRepo->dbGetTotalRows();
+  
+  // get fields definition map arr
+  $fields_definition_map = $subscriptionRepo->buildFieldsRelationalMap();
+  
+  
+  // walk through the list of subscriptions
+  foreach ($all_subscriptions_arr as $fields_info)
+  {
+    // set the row ID
+    $records[$total_valid_records]['id'] = $fields_info->$sort_field;
+      
+    $subscriberStdObj = user_load($fields_info->subscriber_uid);
+      
+    $registrarObj = $purchaserRepo->getPurchaserByUserID($fields_info->registrar_id);
+
+    // walk through the list of fields defitins
+    foreach ($fields_definition_map as $name=>$title)
+    {
+      // assign field value
+      if(stristr($name, 'profile') ){
+        $records[$total_valid_records]['cell'][] = ($csv) ? '"'.$subscriberStdObj->$name.'"' : $subscriberStdObj->$name;
+      }elseif($name == 'amount'){
+        $records[$total_valid_records]['cell'][] = ($csv) ? '"'.fuse_money_format($fields_info->$name).'"' : fuse_money_format($fields_info->$name);
+      }elseif ($name == 'registrar_name'){
+        $records[$total_valid_records]['cell'][] = ($csv) ? '"'.$fields_info->$name.'"' : l($fields_info->$name, '5d-courses-admin/subscription/'.$fields_info->subscription_id.'/details');
+      }elseif($name == 'registrar_organization'){
+        $records[$total_valid_records]['cell'][] = ($csv) ? '"'.$registrarObj->getProfile_organization().'"' : $registrarObj->getProfile_organization();
+      }elseif($name == 'start_date'){
+        $records[$total_valid_records]['cell'][] = date("m/d/y", strtotime( $fields_info->$name ) );
+      }
+      else{
+        $records[$total_valid_records]['cell'][] = ($csv) ? '"'.$fields_info->$name.'"' : $fields_info->$name;
+      }
+    }
+      
+      
+    // increase counter
+    $total_valid_records++;
+  }
+  return $records;
+}
+
+
+/**
+ * Generate Subscription details page
+ * @param unknown_type $subscription_id
+ */
+function roster_subscription_details($subscription_id)
+{
+  // load needed files
+  module_load_include('php', 'cel_5d_course_registration', 'repos/payment_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/purchaser_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscriber_repo');
+  
+  // initialize repos
+  $subscriptionRepo   = new SubscriptionRepo();
+  $paymentRepo    = new PaymentRepo();
+  $purchaserRepo     = new PurchaserRepo();
+  $subscriberRepo    = new SubscriberRepo();
+  
+  try {
+    // get all needed data
+    $subscriptionObj   = $subscriptionRepo->getSubscriptionByID($subscription_id);
+    $paymentObj     = $paymentRepo->getPaymentByID($subscriptionObj->getPayment_id());
+    $purchaserObj     = $purchaserRepo->getPurchaserByUserID($paymentObj->getUid());
+    $subscribers_arr  = $subscriberRepo->getSubscribersBySubscriptionID($subscriptionObj->getSid());
+    
+    
+    // set array of vars to be passed to theme template
+    $theme_vars_arr = array(
+        'subscriptionObj'   => $subscriptionObj,
+        'paymentObj'    => $paymentObj,
+        'purchaserObj'    => $purchaserObj,
+        'subscribers_arr'  => $subscribers_arr,
+        );
+    
+    // theme all the data with a template file
+    return theme('confirmation_page', $theme_vars_arr);
+  } catch (Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+    drupal_goto('5d-courses-admin/rosters/subscriptions');
+  }
+}
+
+
+/**
+ * Implementation of hook_theme
+ */
+function cel_5d_course_registration_theme() 
+{
+  // get path to the module
+  $path = drupal_get_path('module', 'cel_5d_course_registration');
+
+  return array(
+    'confirmation_page' => array(
+      'template' => 'confirmation_page',
+      'arguments' => array('subscription'=>array()),
+      'path' => $path
+    )
+  );
+}
+
+
+/**
+ * GEnerate JSON for jQtable on Trials page grid
+ *
+ * @return JSON
+ */
+function manage_trials_page_data($csv=FALSE)
+{
+  module_load_include('php', 'cel_5d_course_registration', 'repos/trial_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscriber_repo');
+  
+//     if($csv){
+//       header("Content-type: application/csv");
+//       header("Content-Disposition: attachment; filename=report.csv");
+//       header("Pragma: no-cache");
+//       header("Expires: 0");
+//     }
+  
+  // get posted vars
+  $cur_page     = $_REQUEST['page'] ? intval($_REQUEST['page']) : 1;
+  $rows_per_pg   = $_REQUEST['rows'] ? intval($_REQUEST['rows']) : 10;
+  $sort_field    = $_REQUEST['sidx'] ? $_REQUEST['sidx'] : 'uid';
+  $sort_direction  = $_REQUEST['sord'] ? $_REQUEST['sord'] : 'asc';
+  
+  
+  $trialRepo       = new TrialRepo();
+  $subscriberRepo   = new SubscriberRepo();
+  $subscriptionRepo   = new SubscriptionRepo();
+    
+  // get all trials objects
+  $all_trial_users = $trialRepo->getRosterTrialsForGridJson($sort_field, $sort_direction);
+
+  
+  $total_valid_records = 0;
+  $records = array();
+  // get fields definition map
+  $fields_definition_map = $trialRepo->buildRosterFieldsTitlesMethodsArrMap();
+  
+  /* @var $trialObj Trial */
+  foreach ($all_trial_users as $trialObj) 
+  {
+    $subscriberObj = $subscriberRepo->getSubscriberByUserID($trialObj->getUid());
+    
+    // validate current subscriber Object
+    if(!$subscriberObj){
+      continue;
+    }
+    
+    
+    // set row id
+    $records[$total_valid_records]['id'] = $subscriberObj->getUid();
+    
+    // set row data
+    /*
+    $records[$total_valid_records]['cell'] = array(
+          $subscriberObj->getUid(),              // user ID
+          $subscriberObj->getProfile_first_name(),      // First name
+          $subscriberObj->getProfile_last_name(),        // Last name
+          $subscriberObj->getProfile_current_position(),     // posittion
+          $subscriberObj->getProfile_organization(),      // organization
+          $subscriberObj->getMail(),              // email
+          $trialObj->getStart_date(),              // start date
+          $trialObj->getExpire_date(),            // expire date
+        );
+    */
+    
+    
+    foreach ($fields_definition_map as $method=>$field_title)
+    {
+      list($obj, $method) = explode(':', $method);
+      $methodGet_title = 'get'.ucfirst($method);
+      
+      
+      if($obj == 'trialObj'){
+        $records[$total_valid_records]['cell'][] = $trialObj->$methodGet_title() ? $trialObj->$methodGet_title() : ' ';
+      }else{
+        $records[$total_valid_records]['cell'][] = $subscriberObj->$methodGet_title() ? $subscriberObj->$methodGet_title() : ' ';
+      }
+    }
+    
+    
+    // increase toatal number of records counter by 1
+    $total_valid_records++;
+  }
+  
+  // if this is a csv version then generate csv
+  if($csv)
+  {
+    $filename = '5d-course_trial_registrations_'.date('m-d-Y_H-i').'.csv';
+    header("Content-type: application/csv");
+    header("Content-Disposition: attachment; filename=".$filename);
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo implode(',', $fields_definition_map)."\n";
+    
+    foreach ($records as $row){
+      print implode(',', $row['cell'])."\n";
+    }
+    die;
+  }    
+  
+  $outResult = new stdClass();
+  $outResult->page   = $cur_page;
+  $outResult->total   = ceil( $total_valid_records / $rows_per_pg );
+  $outResult->records = $total_valid_records;
+  $outResult->rows  = $records;
+  
+  print( json_encode($outResult) );
+}  
+
+
+/**
+ * jQtable json output
+ * 
+ * @param stdObj $user_id
+ * @return JSON
+ */
+function manage_licenses_page_jqgrid_ajax($user, $subscription_id)
+{
+  $result = new stdClass();
+  $result->page = 1;
+  $result->total = 2;
+  $result->records = 2;
+  
+  $result->rows[] = array(
+    'id'  => 1,
+    'cell'   => array(
+      1,
+      "2010-09-29T19:05:32",
+      320,
+      13,
+      333,
+      'Note fieldd for fielr dfdasfds fdsafdas fdas'
+    )
+  );
+  $result->rows[] = array(
+      'id'  => 3,
+      'cell'   => array(
+          2,
+          "2010-09-29T19:05:32",
+          320,
+          13,
+          333,
+          'Second Note fieldd for fielr dfdasfds fdsafdas fdas'
+      )
+  );
+  
+  print json_encode($result);
+}
+
+
+/**
+* Function used to redirect user to a module page
+*
+* @return boolean
+*/
+function user_tab_redirect($task = FALSE)
+{
+  if(!$task){
+    drupal_goto('5d-courses/e-learning');
+  }
+  
+  switch ($task) {
+    case 'trials_start':
+      drupal_goto('5d-course/trial/start');
+    break;
+    
+    case 'continue_course_registration':
+      global $user;
+
+      // load roles repo class and init object
+      module_load_include('php', 'cel_5d_course_registration', 'repos/roles_repo');
+      $rolesRepo = new RolesRepo();
+      
+      $tempRegistrarRole = $rolesRepo->getTemporaryRegistrarRoleByUserObj($user);
+      
+      // extract module ID from temp role
+      list($prefix, $module_nid) = explode(' : ', $tempRegistrarRole->name);
+      
+      // load morule node obj to get it's path
+      $moduleObj = node_load($module_nid);
+      
+      // redirect to module page 
+      if(isset($moduleObj->path)){
+        drupal_goto($moduleObj->path);
+      }else{
+        // if not valid path then reidrect to profile page
+        drupal_set_message('Sorry, an error occured during the application run process. Please try again later!', 'error');
+        drupal_goto('/user');
+      }
+    break;
+  }
+  
+  return TRUE;
+}  
+
+function cel_5d_course_registration_block_info() {
+	return array(
+		0 => array(
+			'info' => t('5D Course Navigation Block')
+		)
+	);
+}
+
+function cel_5d_course_registration_block_view($delta="") {
+	if($delta === 0) {
+		return array(
+  		'subject' => t('5D Course'),
+  		'content' => build_5d_block_navigation_content()
+    );
+	}
+
+	return array();
+}
+
+
+/**
+ * Build Agreement page content
+ * 
+ * @param int $module_id
+ * @return string
+ */
+function cel_5d_agreement_page($module_id)
+{
+  // get licence aggreement text
+  $out = nodeObj_get_var(node_load($module_id), 'field_licence_agreement');
+  
+  // trial use case
+  if(array_get($_SESSION['subscription_info'], 'trial')){
+    // load trial data for the licence aggreement
+    $out = nodeObj_get_var(node_load($module_id), 'field_licence_agreement_trial');
+  }
+  
+  $out .= drupal_get_form('cel_5d_course_registration_agreement_form', $module_id);
+  return $out;
+}
+
+
+/**
+ * Perform prepayment operations, 
+ * load credit card information form 
+ *
+ * @param int $module_id
+ * @return string
+ */
+function cel_5d_card_info($module_id)
+{    
+  // TODO: build credit card form information based on gateway API    
+  
+  // if no PO or Contract selected the load credit card info form
+  return cel_5d_helper_build_credit_card_info_form(); 
+  
+}
+
+
+/**
+ * Confrimation Page details
+ * 
+ * @param int $module_id
+ * @return string
+ */
+function cel_5d_confirm($module_id)
+{
+  // get session data
+  $submited_data = array_get($_SESSION, 'subscription_info');
+  
+  // validate session data
+  if(!$submited_data){
+    drupal_goto('node/'.$module_id);
+  }
+  
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscriber_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscription_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/payment_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/price_calculation_brain');
+  global $user;
+
+  $subscriberRepo = new SubscriberRepo();
+  $purchaserRepo  = new PurchaserRepo();
+  $subscriptionRepo = new SubscriptionRepo();
+  $paymentRepo  = new PaymentRepo();
+  
+  
+  $purchaserObj   = $purchaserRepo->buildPurchaserObjFillData($submited_data);
+  $paymentObj   = $paymentRepo->buildPaymentObjFromSubmittedData($_SESSION['subscription_info']);
+  $licences_qty   = (isset($_SESSION['subscription_info']['licences_qnt']))  ? intval($_SESSION['subscription_info']['licences_qnt']) : 1;
+  
+  $subscribersObjects = $subscriberRepo->getSubscribersFromSubmitedData($_SESSION['subscription_info']);
+  
+  $out = '<h2>Purchaser Info</h2>';
+  $out .= '<div class="purchaser_info">';
+  $out .= '<span class="label">First Name: </span>'.$purchaserObj->getProfile_first_name().'<br>';
+  $out .= '<span class="label">Last Name: </span>'.$purchaserObj->getProfile_last_name().'<br>';
+  $out .= '<span class="label">Preferred Name: </span>'.$purchaserObj->getPreferred_name().'<br>';
+  $out .= '<span class="label">Current Position/Title: </span>'.$purchaserObj->getProfile_current_position().'<br>';
+  $out .= '<span class="label">Daytime Phone: </span>'.$purchaserObj->getDaytime_phone().'<br>';
+  $out .= '<span class="label">School/District/Organization: </span>'.$purchaserObj->getProfile_organization().'<br>';
+  $out .= '</div>';
+  
+  if(!empty($subscribersObjects) && !isset($_SESSION['purchaser_licence']))
+  {
+    $out .= '<h2>Subscribers Info</h2>';
+    $i=1;
+    foreach ($subscribersObjects as $subscriber)
+    {
+      $subscriberObj = $subscriberRepo->getSubscriberValidateBySubscriberObj($subscriber);
+//         print_r($subscriberObj);
+      $out .= '<div class="subscriber_info">';
+      $out .= '<h3>Subscriber '.$i.'</h3>';
+      $out .= '<span class="label">Email: </span>'.$subscriberObj->getMail().'<br>';
+      $out .= '<span class="label">School/Organization: </span>'.$subscriberObj->getProfile_organization().'<br>';
+      $out .= '<span class="label">First Name: </span>'.$subscriberObj->getProfile_first_name().'<br>';
+      $out .= '<span class="label">Last Name: </span>'.$subscriberObj->getProfile_last_name().'<br>';
+      $out .= '</div>';
+      $i++;
+    }
+  }
+  
+  // build a subscription Object
+  $subscriptionObj  = $subscriptionRepo->buildSubscriptionObjFromSubmittedData($_SESSION['subscription_info']);
+  
+  // load module node Object
+  $module_details = node_load($subscriptionObj->getModule_id());
+
+  // create price calculation brain object
+  $priceCalculationBrain = new PriceCalculationBrain($licences_qty, $module_details);
+
+  $out .= '<h2>Subscription Info</h2>';
+  $out .= '<div class="purchaser_info">';
+  $out .= '<span class="label">Start Date: </span>'.date('M d, Y',$subscriptionObj->getStart_date()).'<br>';
+  $out .= '<span class="label">Expiration Date: </span>'.date('M d, Y',$subscriptionObj->getExpire_date()).'<br>';
+  $out .= '<span class="label">Nubmber of Licenses: </span>'.$subscriptionObj->getLicences_qty().'<br>';
+  $out .= '<span class="label">Price per License: </span>'.$priceCalculationBrain->getUnitPrice(TRUE).'<br>';
+  $out .= '<span class="label">Total Price: </span>'.$priceCalculationBrain->getTotalPrice(TRUE).'<br>';
+  $out .= '</div>';
+  
+  
+  $out .= '<h2>Payment Info</h2>';
+  $out .= '<span class="label">Payment Type: </span>'.$paymentObj->getPayment_type(TRUE).'<br/>';
+  if($paymentObj->getPayment_type() == 'po')
+  {
+    $out .= '<span class="label">Purchase Order #: </span>'.array_get( unserialize($paymentObj->getPayment_data()), 'po_number').'<br/>';
+  }
+  $out .= '<span class="label">Payment Amount: </span>'.$priceCalculationBrain->getTotalPrice(TRUE).'<br/>';
+  $out .= '<br>';
+  $out .= '<div class="confirm_details"><strong>If you need to edit your order, go back to the order page by using your browser\'s back button, make necessary changes and agree to the terms and conditions again to complete your order.</strong></div>';
+  
+  $out .= drupal_get_form('cel_5d_course_registration_confirmation_form');
+  return $out;
+}
+
+
+/**
+ * Trial Page content load
+ * 
+ * @param integer $module_id
+ * @return string
+ */
+function cel_5d_trial_page($module_id)
+{
+  $out .= drupal_get_form('cel_5d_course_registration_licences_form', $module_id);
+  return $out;  
+}
+
+
+/**
+ * Building the application navigation block content
+ * @return string
+ */
+function build_5d_block_navigation_content()
+{
+  drupal_add_css(drupal_get_path('module', 'cel_5d_course_registration') .'css/cel_5d_course_registration.css');
+  
+  
+  module_load_include('php', 'cel_5d_course_registration', 'repos/module_repo');
+  $moduleRepo = new ModuleRepo();
+
+  $out = '';
+  
+  $nid = arg(1);
+  $node = node_load($nid);
+
+  // loadging block content list of links
+  switch ($node->type) 
+  {
+    case '5d_module':
+      $module_id = $node->nid;
+    break;
+    
+    case '5d_session':
+      // get module ID based on session ID
+      $module_id = $moduleRepo->getModuleIDBySessionID($node->nid);
+    break;
+    
+    case '5d_video':
+      // get module ID based on session ID
+      $module_id = $moduleRepo->getModuleIDByVideoID($node->nid);
+      break;
+    
+    case '5d_documents':
+      // get module ID based on document ID
+      $module_id = $moduleRepo->getMpduleIDByDocumentID($node->nid);
+    break;        
+      
+    default:
+      $module_id = $node->nid;
+    break;
+  }
+  $out .= _get_left_block_content_by_module_id($module_id, $node);
+  return $out;
+}
+
+
+/**
+ * Building the whole content based on on incoming data 
+ * 
+ * @param int $module_id
+ * @param stdClass $cur_node
+ * @return string
+ */
+function _get_left_block_content_by_module_id($module_id, $cur_node=FALSE)
+{
+  module_load_include('php', 'cel_5d_course_registration', 'repos/module_repo');
+  $moduleRepo = new ModuleRepo();
+  $sessoins_nids = $moduleRepo->getSessionsIDsByModuleID($module_id);
+  
+  $selected_item_class = 'class="active_item"';
+  
+  if($sessoins_nids && !empty($sessoins_nids))
+  {
+    $i = 0;
+    
+    // application starts
+    $out = '<div id="cel_5d_app_navigation">';
+    $out .= '<ul>';
+    
+    // walk through the list of session IDs
+    foreach ($sessoins_nids as $session_id)
+    {
+      // load session node object
+      $session_node = node_load($session_id, NULL, TRUE);
+      
+      // check user access
+      if(node_access('view', $session_node))
+      {
+        $i = $i+1;
+        
+        $session_active = TRUE;
+        $session_active_class = '';
+        
+        // if it's a module then just give a list of sessions
+        if($cur_node->type == '5d_module'){
+          $session_active = FALSE;
+        }elseif ($cur_node->type == '5d_session' && $cur_node->nid != $session_node->nid){
+          $session_active = FALSE;
+        }elseif($cur_node->type == '5d_video' && fuse_get_nodeObj_var($cur_node, 'field_session_rel', nid) != $session_node->nid){
+          $session_active = FALSE;
+        }elseif($cur_node->type == '5d_documents' && fuse_get_nodeObj_var($cur_node, 'field_docs_session_rel', nid) != $session_node->nid){
+          $session_active = FALSE;
+        }
+        
+        if($session_active){
+          $session_active_class = 'active_session';
+        }
+        
+        
+        $out .= '<li>'.l(t('SESSION '.$i), $session_node->path, array('attributes'=>array('class'=>$session_active_class)));
+
+        
+        if(!$session_active){
+          $out .= '</li>';
+          continue;
+        }
+        
+        // session content START
+        $out .= '<ul>';
+        
+        // adding session title
+        $out .= '<li class="session_title">'.l(t($session_node->title), $session_node->path).'</li>';
+        
+        // VIDEOS
+        // load only the videos I have access to
+        $video_IDs = $moduleRepo->getVideoIDsBySessionID($session_node->nid);
+        
+        // add materials to the list
+        if($video_IDs)
+        {
+          foreach ($video_IDs as $video_id)
+          {
+            $video_node = node_load($video_id);
+            if(node_access('view', $video_node))
+            {
+              $menu_title = (fuse_get_nodeObj_var($video_node, 'field_menu_title')) ? fuse_get_nodeObj_var($video_node, 'field_menu_title') : $video_node->title;
+              $out .= '<li>'.l(t($menu_title), $video_node->path, array('attributes'=>array('class'=>'video'))).'</li>';
+            }
+          }
+        }            
+        
+        
+        // MATERIALS
+        // load only the materials I have access to 
+        $materials_IDs = $moduleRepo->getMaterialsIDsBySessionID($session_node->nid);
+        
+        // add materials to the list
+        if($materials_IDs)
+        {
+          foreach ($materials_IDs as $material_id)
+          {
+            $material_node = node_load($material_id);
+            
+            if(node_access('view', $material_node))
+            {
+              $menu_title = (fuse_get_nodeObj_var($material_node, 'field_materials_menu_title')) ? fuse_get_nodeObj_var($material_node, 'field_materials_menu_title') : $material_node->title;
+              $out .= '<li>'.l(t($menu_title), $material_node->path, array('attributes'=>array('class'=>'materials'))).'</li>';
+            }
+          }
+        }
+        
+        // session content END
+        $out .= '</ul>';
+        $out .= '</li>';
+        
+      }
+    }
+    // application ends
+    $out .= '</ul>';
+    $out .= '</div>';
+  }
+  
+  return $out;
+}  
+
+
+/**
+ * Scheduled jobs to by run when cronjob is running
+ * 
+ * hook_cron() implementation
+ */
+function cel_5d_course_registration_cron()
+{
+  module_load_include('php', 'cel_5d_course_registration', 'repos/trial_repo');
+  module_load_include('php', 'cel_5d_course_registration', 'repos/subscriber_repo');
+
+  $trialRepo     = new TrialRepo();
+  $subscriberRepo     = new SubscriberRepo();
+
+  $subscriberRepo->disableExpiredSubscriptionSubscribers();
+  $trialRepo->deactivateExpiredTrials();
+
+
+  
+  // ======================= EMAIL NOTIFICATIONS ============================ \\
+  // load needed repos
+
+  //TODO--We cannot load specific nodes like this. That is terrible. Awful. We will need to
+  //just loop over all nodes that are of X content type and call this email whatnot on that
+  module_load_include('php', 'cel_5d_course_registration', 'classes/email_notification_class');
+  $notificationClass   = new EmailNotificationClass(473);
+  $subscriptionRepo   = new SubscriptionRepo(); 
+
+  $notificationClass->sendSubscriberurhcaserEmailNotification(7, 'afterSubscriptionStarts');
+  $notificationClass->sendSubscriberurhcaserEmailNotification(60, 'afterSubscriptionStarts');
+  $notificationClass->sendSubscriberurhcaserEmailNotification(15, 'beforeSubscriptionExpires');
+  $notificationClass->sendSubscriberurhcaserEmailNotification(30, 'beforeSubscriptionExpires');
+  $notificationClass->sendSubscriberurhcaserEmailNotification(60, 'beforeSubscriptionExpires');
+
+  // send notification to users registered 2 days ago
+  $notificationClass->sendTrialdNotificationEmail_2_DaysAfterRegistration();
+
+  // send notification to users 7 days before registration expires
+  $notificationClass->sendTrialdNotificationEmailDaysBeforRegistrationExpires(7);
+  $notificationClass->sendTrialdNotificationEmailDaysBeforRegistrationExpires(2);
+
+  // send feedback request 7 days after subscription expires
+  $notificationClass->sendTrialFeedbackRequestDaysAfterSubscriptionExpires(7);
+}
+

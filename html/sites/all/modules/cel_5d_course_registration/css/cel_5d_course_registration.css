@@ -1,0 +1,45 @@
+@CHARSET "UTF-8";
+
+#block-cel_5d_course_registration-0 .content {padding: 0 !important}
+#cel_5d_app_navigation ul {width: auto !important;}
+#cel_5d_app_navigation ul li {margin:0 !important}
+
+#cel_5d_app_navigation > ul > li {margin: 5px 0px 5px 15px !important;}
+
+#cel_5d_app_navigation > ul > li > a { font-weight: bold; }
+
+#cel_5d_app_navigation ul li.session_title {margin: 7px 0 5px 0px !important;}
+#cel_5d_app_navigation ul li.session_title a {font-weight: bold;}
+
+#cel_5d_app_navigation a.active_session {background: url("/sites/all/themes/cel_2011/images/icon_arrow-yellow.gif") no-repeat scroll 0 3px transparent; margin-left:-15px; padding-left: 15px;}
+
+#cel_5d_app_navigation ul li .video {background: url("/sites/all/themes/cel_2011/images/icon_video.gif") no-repeat scroll 0 3px transparent; display: block; padding: 0 0 4px 20px; }
+
+#cel_5d_app_navigation ul li .materials {background: url("/sites/all/themes/cel_2011/images/icon_pdf.gif") no-repeat scroll 0 0 transparent; display: block; padding: 0 0 4px 20px; }
+
+
+
+/**
+ * COURSE OF STUDY STYLES (E-LEARNING)
+ */ 
+#sidebar-left #block-block-40 .block-inner {
+	background-color: #7b88ac;
+	width: 204px;
+}
+#sidebar-left #block-block-40 h2 {
+	font-weight: bold;
+	font-size: 14px;
+	color: #000 ;
+	margin-bottom: 14px;
+}
+#sidebar-left #block-block-40 h2 a {color: #000;}
+#sidebar-left #block-block-40 h5 {
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 11px;
+	margin-top: 16px;
+	margin-bottom: 20px;
+}
+#sidebar-left #block-block-40 p {
+	margin-bottom: 0px;
+}

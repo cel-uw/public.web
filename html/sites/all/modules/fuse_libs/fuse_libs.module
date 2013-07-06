@@ -1,0 +1,59 @@
+<?php 
+/** 
+ * @file 
+ * 
+ * FuseIQ library classes collection
+ * This library includes the most useful collection of functions and classes
+ * to be used in custom drupal modules
+ * 
+ * It has been ported to 7.x by yours truly (Lucian DiPeso)
+ */
+module_load_include('php', 'fuse_libs', 'jqgrid/fuse_jq_grid');
+module_load_include('php', 'fuse_libs', 'classes/fuse_exception');
+
+
+/**
+ * Returns array item or false if doesn't exist
+ * 
+ * @param array $array
+ * @param mixed $key
+ * @return mixed|bool The array item or false if it doesn't exist
+ */
+function fuse_array_get(array $array, $key) {
+	if(isset($array[$key])) {
+		return $array[$key];
+	}
+
+	return FALSE;
+}
+
+
+/**
+ * Get object param value or false
+ *
+ * @param object $objVar
+ * @param string $key
+ * @return boolean|mixed
+ */
+function fuse_obj_get($objVar, $key) {
+	if(isset($objVar->$key) && $objVar->$key !== FALSE && strlen($objVar->$key) > 0){
+		return $objVar->$key;
+	}
+	
+	return FALSE;
+}
+
+
+/**
+ * Set a unique money formatting style
+ *
+ * They should be using money_format. But whatevs. It was changed from the
+ * original so that $number can also be a float. You know, so you can have
+ * stuff cost $2.50.
+ *
+ * @param int|float $number
+ * @return string
+ */
+function fuse_money_format($number) {
+	return '$ ' . number_format($number, 2, '.', ',');
+}
