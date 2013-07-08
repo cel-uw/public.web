@@ -48,15 +48,22 @@ function cel_5d_course_registration_menu()
         'access arguments'   => array('access continue trial enrollment tab'),
         'type' => MENU_LOCAL_TASK,
   );
-  $items['5d-course/trial/start'] = array(
+
+  $e_learning_node = menu_get_object("node", 1, drupal_lookup_path("source", "5d-courses/e-learning"));
+  if(!empty($e_learning_node)) {
+    $items['5d-course/trial/start'] = array(
       'title'   => '5D Course Trial User Info',
       'file'     => 'cel_5d_forms.php',
       'page callback'    => 'drupal_get_form',
-      'page arguments'   => array('cel_5d_course_registration_licences_form', 473),
+      'page arguments'   => array(
+        'cel_5d_course_registration_licences_form', 
+        $e_learning_node->nid
+      ),
       'access callback'   => 'user_access',
       'access arguments'   => array('access continue trial enrollment tab'),
       'type' => MENU_NORMAL_ITEM,
-  );  
+    );  
+  }
   
   
   // COURSE LOGIN / REGISTRATION TEMP
@@ -1183,12 +1190,15 @@ function cel_5d_course_registration_cron()
   
   // ======================= EMAIL NOTIFICATIONS ============================ \\
   // load needed repos
-
-  //TODO--We cannot load specific nodes like this. That is terrible. Awful. We will need to
-  //just loop over all nodes that are of X content type and call this email whatnot on that
   module_load_include('php', 'cel_5d_course_registration', 'classes/email_notification_class');
-  $notificationClass   = new EmailNotificationClass(473);
-  $subscriptionRepo   = new SubscriptionRepo(); 
+
+  $e_learning_node = menu_get_object("node", 1, drupal_lookup_path("source", "5d-courses/e-learning"));
+  if(empty($e_learning_node)) {
+    //We're done
+    return;
+  }
+  $notificationClass = new EmailNotificationClass($e_learning_node->nid);
+  $subscriptionRepo = new SubscriptionRepo(); 
 
   $notificationClass->sendSubscriberurhcaserEmailNotification(7, 'afterSubscriptionStarts');
   $notificationClass->sendSubscriberurhcaserEmailNotification(60, 'afterSubscriptionStarts');
