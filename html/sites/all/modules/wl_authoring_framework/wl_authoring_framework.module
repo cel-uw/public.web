@@ -1,0 +1,6 @@
+<?php
+/**
+ * @file
+ * Code for the feature.
+ */
+include_once 'wl_authoring_framework.features.inc';

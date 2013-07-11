@@ -1,0 +1,356 @@
+<?php
+/**
+ * Set up better CKEditor input
+ *
+ * Uses hook_wysiwyg_editor_settings_alter()
+ *
+ * @param array &$settings The current settings
+ * @param array $context The current context
+ */
+function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
+
+  // The $context variable contains information about the wysiwyg profile we're using
+  // In this case we just need to check that the editor being used is ckeditor
+
+  if($context['profile']->editor !== 'ckeditor') {
+    return;
+  }
+  
+  // Allow content
+  $settings['allowedContent'] = true;
+
+  // Set up bootstrap templates
+  if(empty($settings['templates'])) {
+    $templates = array();
+  }
+  else
+  {
+    $templates = explode(",", $settings['templates']);
+  }
+
+  $templates[] = "wl_authoring_framework";
+  
+  // Remove the default templates
+  $templates = array_diff($templates, array("default"));
+  $settings['templates'] = implode(",", $templates);
+
+  if(empty($settings['templates_files'])) {
+    $settings['templates_files'] = array();
+  }
+
+  $settings['templates_files'][] = base_path() . drupal_get_path('module', 'wl_ckeditor_plus') . "/ckeditor/templates.js";
+  $settings['templates_replaceContent'] = false;
+
+  // Set up the bootstrap styles
+  $settings['stylesSet'] = array(
+    array(
+      'name' => 'Lead paragraph',
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'lead'
+      )
+    ),
+
+    array(
+      'name' => 'Muted paragraph',
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'muted'
+      )
+    ),
+
+     array(
+      'name' => 'Blockquote',
+      'element' => 'blockquote'
+    ),
+
+    array(
+      'name' => 'Alert',
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'alert'
+      )
+    ),
+
+    array(
+      'name' => 'Success alert',
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'alert alert-success'
+      )
+    ),
+
+    array(
+      'name' => 'Info alert',
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'alert alert-info'
+      )
+    ),
+
+    array(
+      'name' => 'Badge',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'badge'
+      )
+    ),
+
+    array(
+      'name' => 'Success badge',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'badge badge-success'
+      )
+    ),
+
+    array(
+      'name' => 'Warning badge',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'badge badge-warning'
+      )
+    ),
+
+    array(
+      'name' => 'Important badge',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'badge badge-important'
+      )
+    ),
+
+    array(
+      'name' => 'Info badge',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'badge badge-info'
+      )
+    ),
+
+    array(
+      'name' => 'Inverse badge',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'badge badge-inverse'
+      )
+    ),
+
+    array(
+      'name' => 'Label',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'label'
+      )
+    ),
+
+    array(
+      'name' => 'Success label',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'label label-success'
+      )
+    ),
+
+    array(
+      'name' => 'Warning label',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'label label-warning'
+      )
+    ),
+
+    array(
+      'name' => 'Important label',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'label label-important'
+      )
+    ),
+
+    array(
+      'name' => 'Info label',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'label label-info'
+      )
+    ),
+
+    array(
+      'name' => 'Inverse label',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'label label-inverse'
+      )
+    ),
+
+    array(
+      'name' => 'Computer code',
+      'element' => 'code',
+    ),
+
+    array(
+      'name' => 'Citation',
+      'element' => 'cite',
+    ),
+
+    array(
+      'name' => 'Inline quotation',
+      'element' => 'q',
+    ),
+
+    array(
+      'name' => 'Muted text',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'muted'
+      )
+    ),
+  );
+
+  // Group the toolbar buttons nicely
+  if(!empty($settings['toolbar'])) {
+
+    // Make nicer groupings
+    $preferred_groupings = array();
+    $preferred_groupings['paragraph_type'] = array(
+      'Format'
+    );
+    $preferred_groupings['font_styles'] = array(
+      'Font', 
+      'FontSize', 
+      'Styles',
+    );
+    $preferred_groupings['clear_format'] = array(
+      'RemoveFormat'
+    );
+    $preferred_groupings['basic_styles'] = array(
+      'Bold', 
+      'Italic', 
+      'Underline', 
+      'Strike',
+      'Subscript', 
+      'Superscript'
+    );
+    $preferred_groupings['colors'] = array(
+      'TextColor', 
+      'BGColor',
+    );
+    $preferred_groupings['lists'] = array(
+      'BulletedList', 
+      'NumberedList'
+    );
+    $preferred_groupings['indent'] = array(
+      'Indent', 
+      'Outdent'
+    );
+    $preferred_groupings['alignment'] = array(
+      'JustifyLeft', 
+      'JustifyCenter', 
+      'JustifyRight', 
+      'JustifyBlock'
+    );
+    $preferred_groupings['links'] = array(
+      'Link', 
+      'linkit', 
+      'Unlink', 
+      'Anchor'
+    );
+    $preferred_groupings['blockquote'] = array(
+      'Blockquote'
+    );
+    $preferred_groupings['table'] = array(
+      'Table'
+    );
+    $preferred_groupings['media'] = array(
+      'Image', 
+      'media'
+    );
+    $preferred_groupings['hr'] = array(
+      'HorizontalRule'
+    );
+    $preferred_groupings['teaser'] = array(
+      'break'
+    );
+    $preferred_groupings['char_map'] = array(
+      'SpecialChar'
+    );
+    $preferred_groupings['templates'] = array(
+      'Templates'
+    );
+    $preferred_groupings['copying'] = array(
+      'SelectAll', 
+      'Cut', 
+      'Copy', 
+      'PasteFromWord', 
+      'PasteText', 
+      'Paste'
+    );
+    $preferred_groupings['undo'] = array(
+      'Undo', 
+      'Redo'
+    );
+    $preferred_groupings['search_replace'] = array(
+      'Find', 
+      'Replace'
+    );
+    $preferred_groupings['spell_check'] = array(
+      'SpellChecker', 
+      'Scayt'
+    );
+    $preferred_groupings['source'] = array(
+      'ShowBlocks', 
+      'Source'
+    );
+
+    $used_buttons = array();
+    $grouped_buttons = array();
+
+    //Get a flattened array of all the currently chosen buttons (they be already grouped)
+    foreach($settings['toolbar'] as $group) {
+      if(!empty($group['items'])) {
+        // If it's already been grouped, the buttons themselves are in 'items'
+        $used_buttons = array_merge($used_buttons, $group['items']);
+      } else {
+        $used_buttons = array_merge($used_buttons, $group);
+      }
+    }
+
+    //Let's make our groups
+    $new_grouped_toolbar = array();
+
+    // Compare each desired grouping to the configured buttons in the toolbar
+    // and add them if they are there
+    foreach($preferred_groupings as $group) {
+      // We call array_values to re-key the items
+      $matching_buttons = array_values(array_intersect($group, $used_buttons));
+      $new_grouped_toolbar[] = $matching_buttons;
+
+      //Record which buttons we've used
+      $grouped_buttons = array_merge($grouped_buttons, $matching_buttons);
+    }
+
+    //Find any other buttons that should be displayed but for which we have no grouping
+    $leftover_buttons = array_diff($used_buttons, $grouped_buttons);
+    if(!empty($leftover_buttons)) {
+      $new_grouped_toolbar[] = array_values($leftover_buttons);
+    }
+
+    $settings['toolbar'] = $new_grouped_toolbar;
+  }
+}
+
+/**
+ * Add the path to this module to JS settings
+ *
+ * This is necessary for templates.js to load the correct icons
+ *
+ * Implements hook_init()
+ */
+function wl_ckeditor_plus_init() {
+  drupal_add_js(array(
+    'wl_ckeditor_plus' => array(
+      'base_path' => drupal_get_path('module', 'wl_ckeditor_plus')
+    )
+  ), 'setting');
+}

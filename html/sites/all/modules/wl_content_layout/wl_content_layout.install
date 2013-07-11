@@ -1,0 +1,19 @@
+<?php
+/**
+ * Uninstall
+ *
+ * Implements hook_uninstall()
+ */
+function wl_content_layout_uninstall() {
+  variable_del('wl_content_layout_allowed_layouts');
+}
+
+/**
+ * Enable the base theme
+ *
+ * Implements hook_enable()
+ */
+function wl_content_layout_enable() {
+  variable_set('page_manager_node_view_disabled', 0);
+  menu_rebuild();
+}

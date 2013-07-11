@@ -1,0 +1,10 @@
+<?php
+/**
+ * Enable the base theme
+ *
+ * Implements hook_enable()
+ */
+function wl_editing_framework_enable() {
+  theme_enable(array('wl'));
+  variable_set('theme_default', 'wl');
+}
