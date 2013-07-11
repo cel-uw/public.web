@@ -62,10 +62,6 @@ function wl_preprocess_node(&$vars) {
  * @param array &$vars
  */
 function wl_preprocess_page(&$vars) {
-  if(!module_exists('wl_editing_framework')) {
-    drupal_set_message(t('The Where’s Lucian base theme requires the Where’s Lucian Editing Framework module to be installed.'), 'warning');
-  }
-
   $node = false;
   if(!empty($vars['node'])) {
     $node = $vars['node'];
