@@ -150,19 +150,7 @@
 	 */
 	function nodeObj_get_var(stdClass $nodeObj, $var_title)
 	{
-		// check variable obj param presence
-		if(!isset($nodeObj->$var_title)){
-			return FALSE;
-		}
-		
-		// check if param has the right format
-		$param =  $nodeObj->$var_title;
-		if(!isset($param[0]['value'])){
-			return FALSE;
-		}
-		
-		// return variable data
-		return $param[0]['value'];
+		return fuse_get_nodeObj_var($nodeObj, $var_title, 'value');
 	}
 	
 	
@@ -176,21 +164,22 @@
 	 * @param otional value index used in array structure, comes in [value], [nid]....
 	 * @return Ambigious <bool, string>
 	 */
-	function fuse_get_nodeObj_var(stdClass $nodeObj, $var_title, $var_ind = 'value')
+	function fuse_get_nodeObj_var($nodeObj, $var_title, $var_ind = 'value')
 	{
 		// check variable obj param presence
-		if(!isset($nodeObj->$var_title)){
-			return FALSE;
+		$var_items = field_get_items('node', $nodeObj, $var_title);
+		if(empty($var_items)) {
+			return false;
 		}
-	
-		// check if param has the right format
-		$param =  $nodeObj->$var_title;
-		if(!isset($param[0][$var_ind])){
-			return FALSE;
+
+		// We only get the first value, cause this function sucks
+		$var_item = reset($var_items);
+		if(!isset($var_item[$var_ind])){
+			return false;
 		}
 	
 		// return variable data
-		return $param[0][$var_ind];
+		return $var_item[$var_ind];
 	}	
 	
 	
