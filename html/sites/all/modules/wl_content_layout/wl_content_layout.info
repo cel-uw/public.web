@@ -1,7 +1,7 @@
 name = Where’s Lucian Content Layout Framework
 core = 7.x
 package = WheresLucian.com
-version = 7.x-1.1-beta2
+version = 7.x-1.1
 project = wl_editing_framework
 dependencies[] = ctools
 dependencies[] = entity
@@ -43,6 +43,7 @@ features[field_instance][] = node-page-field_related_content_5
 features[node][] = blurb
 features[page_manager_handlers][] = bootstrap_threecol_25_50_25_stacked
 features[page_manager_handlers][] = bootstrap_threecol_33_33_33_stacked
+features[page_manager_handlers][] = bootstrap_twocol_66_33_stacked
 features[page_manager_handlers][] = bootstrap_twocol_stacked
 features[page_manager_handlers][] = simple
 features[variable][] = wl_content_layout_allowed_layouts

@@ -107,6 +107,15 @@
 
 <script>
 //Common JS
+/**
+ * @var bool window_loaded Changed to true when the window has finished
+ */
+var window_loaded = false;
+
+jQuery(window).load(function($) {
+  window_loaded = true;
+});
+
 jQuery(document).ready(function($) {
   $('body').on('hidden', '.modal', function () {
     //Clear out our modals
@@ -137,11 +146,7 @@ jQuery(document).ready(function($) {
       $(modal).find('.modal-body .media-youtube-video').fitVids();
       //Set the state-change settings for youtube videos
       $(modal).find('.modal-body .media-youtube-video iframe').each(function() {
-        var player = new YT.Player(this, {
-          events: {
-            'onStateChange': toggleCarousel
-          }
-        });
+        init_youtube_player.call(this);
       });
 
       //Carousel any carousels
@@ -158,12 +163,6 @@ jQuery(document).ready(function($) {
   $('.carousel').carousel();
 });
 
-var window_loaded = false;
-
-jQuery(window).load(function($) {
-  window_loaded = true;
-});
-
 /**
  * Init player API objects for each youtube video
  */
@@ -174,23 +173,56 @@ function onYouTubeIframeAPIReady() {
   }
 
   jQuery('.media-youtube-video iframe').each(function() {
-    var player = new YT.Player(this, {
-      events: {
-        'onStateChange': toggleCarousel
-      }
-    });
+    init_youtube_player.call(this);
   });
 }
 
 /**
- * Toggle any carousels in which a youtube player is embedded
+ * Inits the YouTube Player API for a specific iframe
  *
- * @param object event
+ * Used to pause/cycle carousels in which the YouTube is embedded
  */
-function toggleCarousel(event) {
-  var iframe = event.target.getIframe() || false,
-      carousel = iframe ? jQuery(iframe).closest('.carousel') : [],
-      pane = iframe ? jQuery(iframe).closest('.item') : [];
+function init_youtube_player() {
+  var player = new YT.Player(this, {
+    events: {
+      onStateChange: function(event) {
+        var iframe = event.target.getIframe() || false;
+
+        switch(event.data) {
+          case YT.PlayerState.UNSTARTED:
+          case YT.PlayerState.ENDED:
+            toggle_carousel(iframe, 'finished');
+            break;
+
+          case YT.PlayerState.PAUSED:
+            toggle_carousel(iframe, 'paused');
+            break;
+
+          default:
+            toggle_carousel(iframe, 'playing');
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Toggle a carousel
+ *
+ * Used to pause/cycle carousels in which a YouTube is embedded
+ *
+ * @var object iframe The YouTube iframe
+ * @var string state The state of the YouTube player
+ */
+function toggle_carousel(iframe, state) {
+  iframe = jQuery(iframe);
+
+  if(!iframe.length) {
+    return;
+  }
+
+  var carousel = iframe.closest('.carousel'),
+      pane = iframe.closest('.item');
 
   //This video isn't in a carousel, so stop
   if(!carousel.length || !pane.length) {
@@ -199,11 +231,16 @@ function toggleCarousel(event) {
 
   var pane_index = carousel.find('.item').index(pane);
 
-  if(event.data != YT.PlayerState.UNSTARTED && event.data != YT.PlayerState.PAUSED && event.data != YT.PlayerState.ENDED) {
-    carousel.carousel(pane_index);
-    carousel.carousel('pause');
-  } else {
-    carousel.carousel('cycle');
+  switch(state) {
+    case 'playing':
+      carousel.carousel(pane_index);
+      carousel.carousel('pause');
+      break;
+
+    case 'paused':
+    case 'finished':
+    default:
+      carousel.carousel('cycle');
   }
 }
 </script>

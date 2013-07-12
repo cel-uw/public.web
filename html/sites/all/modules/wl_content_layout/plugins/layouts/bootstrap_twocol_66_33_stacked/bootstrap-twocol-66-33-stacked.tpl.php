@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Template for a 2 column panel layout.
+ * Template for a 2 column 66/33 panel layout.
  *
  * This template provides a two column panel display layout, with
  * additional areas for the top and the bottom.
@@ -16,7 +16,7 @@
  *   - $content['bottom']: Content in the bottom row.
  */
 ?>
-<div class="panel-bootstrap-2col-stacked panel-display" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
+<div class="panel-bootstrap-2col-66-33-stacked panel-display" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
   <?php if ($content['top']): ?>
     <div class="row-fluid panel-col-top panel-panel">
       <div class="span12"><?php print $content['top']; ?></div>
@@ -24,10 +24,10 @@
   <?php endif; ?>
 
   <div class="row-fluid center-wrapper">
-    <div class="panel-col-first span6 panel-panel">
+    <div class="panel-col-first span9 panel-panel">
       <?php print $content['left']; ?>
     </div>
-    <div class="panel-col-last span6 panel-panel">
+    <div class="panel-col-last span3 panel-panel">
       <?php print $content['right']; ?>
     </div>
   </div>
