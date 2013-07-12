@@ -24,6 +24,7 @@ stylesheets[all][] = css/style.css
 
 ; Scripts
 scripts[] = js/bootstrap.min.js
+scripts[] = js/froogaloop.min.js
 
 ; Disabled the boostrap CDN
 settings[cdn_bootstrap] = 1

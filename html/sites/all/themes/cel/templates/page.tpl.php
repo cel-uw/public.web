@@ -107,7 +107,18 @@
 
 <script>
 //Common JS
+var window_loaded = false;
+
+jQuery(window).load(function($) {
+  window_loaded = true;
+});
+
 jQuery(document).ready(function($) {
+  $('body').on('click', 'a[data-toggle=collapse]', function (event) {
+    // Prevent <a> collapse toggles from firing click events
+    event.preventDefault();
+  });
+
   $('body').on('hidden', '.modal', function () {
     //Clear out our modals
     $(this).removeData('modal');
@@ -133,15 +144,17 @@ jQuery(document).ready(function($) {
         return;
       }
 
-      //Dynamically resize youtube iframes
+      //Dynamically resize youtube/vimeo iframes
       $(modal).find('.modal-body .media-youtube-video').fitVids();
+      $(modal).find('.modal-body .media-vimeo-preview-wrapper').fitVids();
       //Set the state-change settings for youtube videos
       $(modal).find('.modal-body .media-youtube-video iframe').each(function() {
-        var player = new YT.Player(this, {
-          events: {
-            'onStateChange': toggleCarousel
-          }
-        });
+        init_youtube_player.call(this);
+      });
+
+      //Set the state-change settings for vimeo videos
+      $(modal).find('.modal-body .media-vimeo-preview-wrapper iframe').each(function() {
+        init_vimeo_player.call(this);
       });
 
       //Carousel any carousels
@@ -151,17 +164,17 @@ jQuery(document).ready(function($) {
     }, 500);
   });
 
-  //Dynamically resize youtube iframes
+  //Dynamically resize youtube/vimeo iframes
   $('.media-youtube-video').fitVids();
+  $('.media-vimeo-preview-wrapper').fitVids();
+
+  //Set the state-change settings for vimeo videos
+  $('.media-vimeo-preview-wrapper iframe').each(function() {
+    init_vimeo_player.call(this);
+  });
 
   //Carousel any carousels
   $('.carousel').carousel();
-});
-
-var window_loaded = false;
-
-jQuery(window).load(function($) {
-  window_loaded = true;
 });
 
 /**
@@ -174,23 +187,80 @@ function onYouTubeIframeAPIReady() {
   }
 
   jQuery('.media-youtube-video iframe').each(function() {
-    var player = new YT.Player(this, {
-      events: {
-        'onStateChange': toggleCarousel
+    init_youtube_player.call(this);
+  });
+}
+
+/**
+ * Inits the YouTube Player API for a specific iframe
+ *
+ * Used to pause/cycle carousels in which the YouTube is embedded
+ */
+function init_youtube_player() {
+  var player = new YT.Player(this, {
+    events: {
+      onStateChange: function(event) {
+        var iframe = event.target.getIframe() || false;
+
+        switch(event.data) {
+          case YT.PlayerState.UNSTARTED:
+          case YT.PlayerState.ENDED:
+            toggle_carousel(iframe, 'finished');
+            break;
+
+          case YT.PlayerState.PAUSED:
+            toggle_carousel(iframe, 'paused');
+            break;
+
+          default:
+            toggle_carousel(iframe, 'playing');
+        }
       }
+    }
+  });
+}
+
+/**
+ * Inits the Vimeo Player API for a specific iframe
+ *
+ * Used to pause/cycle carousels in which the Vimeo is embedded
+ */
+function init_vimeo_player() {
+  var iframe = jQuery(this).get(0),
+      player = $f(iframe);
+
+  player.addEvent('ready', function() {
+    player.addEvent('play', function(id) {
+      toggle_carousel(iframe, 'playing');
+    });
+
+    player.addEvent('pause', function(id) {
+      toggle_carousel(iframe, 'paused');
+    });
+
+    player.addEvent('finish', function(id) {
+      toggle_carousel(iframe, 'finished');
     });
   });
 }
 
 /**
- * Toggle any carousels in which a youtube player is embedded
+ * Toggle a carousel
  *
- * @param object event
+ * Used to pause/cycle carousels in which a YouTube/Vimeo is embedded
+ *
+ * @var object iframe The YouTube iframe
+ * @var string state The state of the YouTube player
  */
-function toggleCarousel(event) {
-  var iframe = event.target.getIframe() || false,
-      carousel = iframe ? jQuery(iframe).closest('.carousel') : [],
-      pane = iframe ? jQuery(iframe).closest('.item') : [];
+function toggle_carousel(iframe, state) {
+  iframe = jQuery(iframe);
+
+  if(!iframe.length) {
+    return;
+  }
+
+  var carousel = iframe.closest('.carousel'),
+      pane = iframe.closest('.item');
 
   //This video isn't in a carousel, so stop
   if(!carousel.length || !pane.length) {
@@ -199,11 +269,16 @@ function toggleCarousel(event) {
 
   var pane_index = carousel.find('.item').index(pane);
 
-  if(event.data != YT.PlayerState.UNSTARTED && event.data != YT.PlayerState.PAUSED && event.data != YT.PlayerState.ENDED) {
-    carousel.carousel(pane_index);
-    carousel.carousel('pause');
-  } else {
-    carousel.carousel('cycle');
+  switch(state) {
+    case 'playing':
+      carousel.carousel(pane_index);
+      carousel.carousel('pause');
+      break;
+
+    case 'paused':
+    case 'finished':
+    default:
+      carousel.carousel('cycle');
   }
 }
 </script>
