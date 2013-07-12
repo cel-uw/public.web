@@ -145,8 +145,8 @@ jQuery(document).ready(function($) {
       }
 
       //Dynamically resize youtube/vimeo iframes
-      $(modal).find('.modal-body .media-youtube-video').fitVids();
-      $(modal).find('.modal-body .media-vimeo-preview-wrapper').fitVids();
+      $(modal).find('.modal-body').find('.media-youtube-video, .media-vimeo-preview-wrapper').fitVids();
+      $(modal).find('.modal-body').find(".uwtv-video").fitVids({ customSelector: "iframe[src^='http://mediaamp.org']"});
       //Set the state-change settings for youtube videos
       $(modal).find('.modal-body .media-youtube-video iframe').each(function() {
         init_youtube_player.call(this);
@@ -165,8 +165,9 @@ jQuery(document).ready(function($) {
   });
 
   //Dynamically resize youtube/vimeo iframes
-  $('.media-youtube-video').fitVids();
-  $('.media-vimeo-preview-wrapper').fitVids();
+  $('.media-youtube-video, .media-vimeo-preview-wrapper').fitVids();
+  $(".uwtv-video").fitVids({ customSelector: "iframe[src^='http://mediaamp.org']"});
+
 
   //Set the state-change settings for vimeo videos
   $('.media-vimeo-preview-wrapper iframe').each(function() {

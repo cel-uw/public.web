@@ -1,3 +1,37 @@
+/**
+ * Typography
+ */
+body, body h1, body h2, body h3, body h4, body h5, body h6
+{
+  line-height: 1.7em;
+}
+
+h1
+{
+  font-size: 32px;
+}
+
+h1 small
+{
+  padding-left: 10px;
+  font-size: 30px;
+}
+
+h2
+{
+  font-size: 23px;
+}
+
+a
+{
+  text-decoration: underline;
+}
+
+a span.caret
+{
+  vertical-align: middle;
+}
+
 html, body
 {
   width: 100%;
@@ -40,4 +74,10 @@ body.toolbar-drawer
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+.page-header
+{
+  border-bottom: 0;
+  margin-bottom: 6px;
 }

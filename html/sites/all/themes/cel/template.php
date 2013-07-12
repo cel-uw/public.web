@@ -49,12 +49,42 @@ function cel_preprocess_node(&$vars) {
 
     $new_vars['cel_collapse_content_classes'] = implode(" ", $cel_collapse_content_classes);
 
+    // If we have any per-content type functions
+    // We should do this sparingly--even the above collapsible stuff, while only applying to blurbs right now
+    // might later be extended to other content types, so we keep it generic
+    $function_name = "cel_preprocess_node_{$node->type}";
+    if(!empty($node->type) && function_exists($function_name)) {
+      $function_name($node, $vars);
+    }
   }
 
   //Merge in the new vars
   $vars = array_merge($vars, $new_vars);
+}
 
-  return $vars;
+/**
+ * Add in vars specific for the 5D video content type
+ *
+ * Called by cel_preprocess_node()
+ *
+ * @param object $node The node object
+ * @param array &$vars The vars array
+ */
+function cel_preprocess_node_5d_video($node, &$vars) {
+  $new_vars = array(
+    'cel_5d_video_code' => "",
+  );
+
+  $video_code_items = field_get_items('node', $node, 'field_uwtv_video_code');
+  if(!empty($video_code_items)) {
+    foreach($video_code_items as $value) {
+      $video_code_item = field_view_value('node', $node, 'field_uwtv_video_code', $value);
+      $new_vars['cel_5d_video_code'] .= render($video_code_item);
+    }
+  }
+
+  //Merge in the new vars
+  $vars = array_merge($vars, $new_vars);
 }
 
 /**
