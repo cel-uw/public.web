@@ -127,7 +127,7 @@ class PermissionsClass {
 		$user_roles_arr = $this->user->roles;
 		
 		// 14 = 5D Trial role; 12 = 5D Subscriber 473
-		if (isset($user_roles_arr[14]) || isset($user_roles_arr[12])){
+		if (isset($user_roles_arr[14]) || isset($user_roles_arr[12]) || user_access('administer nodes')){
 			return TRUE;
 		}
 		
