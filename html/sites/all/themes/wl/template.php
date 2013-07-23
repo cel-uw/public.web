@@ -87,7 +87,7 @@ function _wl_basic_preprocess_vars($node, $vars) {
 
   if(!empty($node)) {
     //Get the titles
-    $show_title_items = field_get_items('node', $node, 'field_show_title');
+    $show_title_items = field_get_items('node', $node, 'field_show_titles');
     if(!empty($show_title_items)) {
       $show_title = reset($show_title_items);
       $new_vars['wl_show_title'] = !empty($show_title['value']);
@@ -96,15 +96,14 @@ function _wl_basic_preprocess_vars($node, $vars) {
     $add_colon_items = field_get_items('node', $node, 'field_add_colon_to_title');
     if(!empty($add_colon_items)) {
       $add_colon = reset($add_colon_items);
-      $new_vars['wl_add_colon_to_title'] = !empty($add_colon_to_title['value']);
+      $new_vars['wl_add_colon_to_title'] = !empty($add_colon['value']);
     }
 
     $subtitle_items = field_get_items('node', $node, 'field_subtitle');
     if(!empty($subtitle_items)) {
       foreach($subtitle_items as $value) {
-        $new_vars['wl_subtitle'] .= render(
-          field_view_value('node', $node, 'field_subtitle', $value)
-        );
+        $subtitle_item = field_view_value('node', $node, 'field_subtitle', $value);
+        $new_vars['wl_subtitle'] .= render($subtitle_item);
       }
     }
     if(!empty($new_vars['wl_subtitle'])) {

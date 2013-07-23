@@ -1,0 +1,14 @@
+.pane-content > .field-type-entityreference > .field-items > .field-item
+{
+  margin-bottom: 20px;
+}
+
+.pane-content > .field-type-entityreference > .field-items > .field-item:first-child .contextual-links-region .contextual-links-trigger
+{
+  margin-top: 18px;
+}
+
+.pane-content > .field-type-entityreference > .field-items > .field-item:first-child .contextual-links-region .contextual-links
+{
+  top: 34px;
+}

@@ -185,6 +185,62 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
     ),
 
     array(
+      'name' => 'Button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn'
+      )
+    ),
+
+    array(
+      'name' => 'Primary button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn btn-primary'
+      )
+    ),
+
+    array(
+      'name' => 'Info button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn btn-info'
+      )
+    ),
+
+    array(
+      'name' => 'Success button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn btn-success'
+      )
+    ),
+
+    array(
+      'name' => 'Warning button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn btn-warning'
+      )
+    ),
+
+    array(
+      'name' => 'Danger button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn btn-danger'
+      )
+    ),
+
+    array(
+      'name' => 'Inverse button',
+      'element' => 'a',
+      'attributes' => array(
+        'class' => 'btn btn-inverse'
+      )
+    ),
+
+    array(
       'name' => 'Computer code',
       'element' => 'code',
     ),
