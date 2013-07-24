@@ -81,3 +81,14 @@ body.toolbar-drawer
   border-bottom: 0;
   margin-bottom: 6px;
 }
+
+fieldset.collapsible legend .fieldset-legend a.fieldset-title
+{
+  text-decoration: none;
+  color: rgb(51, 51, 51);
+}
+
+.form-required
+{
+  color: #b94a48;
+}
