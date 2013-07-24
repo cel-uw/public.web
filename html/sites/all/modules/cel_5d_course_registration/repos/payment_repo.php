@@ -47,9 +47,9 @@ class PaymentRepo {
 		$sql = db_query("SELECT p.*, ps.title as status_title
 							FROM {$this->table} as p 
 							JOIN {cel_5d_payment_statuses} as ps ON (p.status_id = ps.sid)
-							WHERE $this->id = %d
+							WHERE {$this->id} = :id
 							LIMIT 1", 
-						$payment_id);
+						array(':id' => $payment_id));
 		
 		// get purchaser data form DB and buld a purchaser object
 		return $this->buildPaymentObjFillData( db_fetch_array($sql) );

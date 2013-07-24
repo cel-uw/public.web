@@ -23,8 +23,8 @@ class ModuleRepo extends Repository {
 				FROM
 					{content_type_5d_session}
 				WHERE
-					field_module_rel_nid = %d";
-		$sessions = $this->dbGetRecordsFieldArr('nid', $sql, array($module_id));
+					field_module_rel_nid = :module_id";
+		$sessions = $this->dbGetRecordsFieldArr('nid', $sql, array(':module_id' => $module_id));
 		
 		return $sessions;
 	}	
@@ -39,9 +39,9 @@ class ModuleRepo extends Repository {
 					{content_type_5d_documents} as cd
 				JOIN {node} as n ON (cd.nid = n.nid)
 				WHERE
-					cd.field_docs_session_rel_nid = %d
+					cd.field_docs_session_rel_nid = :session_id
 				ORDER BY n.changed";
-		$materials_ids = $this->dbGetRecordsFieldArr('nid', $sql, array($session_id));
+		$materials_ids = $this->dbGetRecordsFieldArr('nid', $sql, array(':session_id' => $session_id));
 		
 		return $materials_ids;		
 	}
@@ -55,8 +55,8 @@ class ModuleRepo extends Repository {
 		FROM
 			{content_type_5d_video}
 		WHERE
-			field_session_rel_nid = %d";
-		$video_ids = $this->dbGetRecordsFieldArr('nid', $sql, array($session_id));
+			field_session_rel_nid = :session_id";
+		$video_ids = $this->dbGetRecordsFieldArr('nid', $sql, array(':session_id' => $session_id));
 	
 		return $video_ids;
 	}
@@ -70,28 +70,28 @@ class ModuleRepo extends Repository {
 	 */
 	function getModuleIDBySessionID($session_id)
 	{
-		$sql = "SELECT field_module_rel_nid FROM {content_type_5d_session} WHERE nid = %d LIMIT 1";
-		return $this->dbGetVar('field_module_rel_nid', $sql, array($session_id));
+		$sql = "SELECT field_module_rel_nid FROM {content_type_5d_session} WHERE nid = :session_id LIMIT 1";
+		return $this->dbGetVar('field_module_rel_nid', $sql, array(':session_id' => $session_id));
 	}
 	
 	
 	function getModuleIDByVideoID($video_id)
 	{
 		$sql = "SELECT field_module_rel_nid
-				FROM content_type_5d_session as s
-				JOIN content_type_5d_video as v ON (v.field_session_rel_nid = s.nid)
-				WHERE v.nid = %d LIMIT 1";
-		return $this->dbGetVar('field_module_rel_nid', $sql, array($video_id));
+				FROM {content_type_5d_session} as s
+				JOIN {content_type_5d_video} as v ON (v.field_session_rel_nid = s.nid)
+				WHERE v.nid = :video_id LIMIT 1";
+		return $this->dbGetVar('field_module_rel_nid', $sql, array(':video_id' => $video_id));
 	}
 	
 	
 	function getMpduleIDByDocumentID($document_id)
 	{
 		$sql = "SELECT field_module_rel_nid
-				FROM content_type_5d_session as s
-				JOIN content_type_5d_documents as v ON (v.field_docs_session_rel_nid = s.nid)
-				WHERE v.nid = %d LIMIT 1";
-		return $this->dbGetVar('field_module_rel_nid', $sql, array($document_id));		
+				FROM {content_type_5d_session} as s
+				JOIN {content_type_5d_documents} as v ON (v.field_docs_session_rel_nid = s.nid)
+				WHERE v.nid = :document_id LIMIT 1";
+		return $this->dbGetVar('field_module_rel_nid', $sql, array(':document_id' => $document_id));		
 	}
 }
 

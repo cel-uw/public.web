@@ -1,0 +1,435 @@
+<?php
+
+/*
+ Need to set up tables for
+
+  cel_5d_payment_statuses
+  cel_5d_payments
+  cel_5d_purchaser_info
+  cel_5d_subscriber_info
+  cel_5d_subscriptions
+  cel_5d_subscriptions_subscribers_map
+  cel_5d_trials
+*/
+
+/**
+ * @file
+ * Installation functions for cel_5d_course_registration module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function cel_5d_course_registration_install() {
+  // Set up the various payment statuses
+  db_insert('cel_5d_payment_statuses')->fields(array(
+    'sid' => 1,
+    'title' => 'Completed'
+  ))
+  ->execute();
+
+  db_insert('cel_5d_payment_statuses')->fields(array(
+    'sid' => 2,
+    'title' => 'On Hold'
+  ))
+  ->execute();
+
+  db_insert('cel_5d_payment_statuses')->fields(array(
+    'sid' => 3,
+    'title' => 'Waiting for Invoice'
+  ))
+  ->execute();
+
+  db_insert('cel_5d_payment_statuses')->fields(array(
+    'sid' => 4,
+    'title' => 'Invoice Sent'
+  ))
+  ->execute();
+
+  // Make sure {cel_5d_payments}.date works properly
+  db_query("ALTER TABLE {cel_5d_payments} MODIFY date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+  // Make sure {cel_5d_purchaser_info}.updated works properly
+  db_query("ALTER TABLE {cel_5d_purchaser_info} MODIFY updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+  // Make sure {cel_5d_subscriptions}.date works properly
+  db_query("ALTER TABLE {cel_5d_subscriptions} MODIFY date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+  // Make sure {cel_5d_subscriptions_subscribers_map}.date_added works properly
+  db_query("ALTER TABLE {cel_5d_subscriptions_subscribers_map} MODIFY date_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+  // Make sure {cel_5d_trials}.date_added works properly
+  db_query("ALTER TABLE {cel_5d_trials} MODIFY start_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function cel_5d_course_registration_schema() {
+  $schema = array();
+
+  $schema['cel_5d_payment_statuses'] = array(
+    'description' => 'Describes possible payment statuses.',
+    'fields' => array(
+      'sid' => array(
+        'description' => 'The PK.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        // Primary keys are implicitly not null.
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'The human-readable payment status.',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('sid'),
+  );
+
+  $schema['cel_5d_payments'] = array(
+    'description' => 'Payments made for 5D modules.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'The PK.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the paying user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'payment_type' => array(
+        'description' => 'The payment type.',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => FALSE,
+      ),
+      'amount' => array(
+        'description' => 'The amount paid.',
+        'type' => 'int',
+        'length' => 8,
+        'not null' => FALSE,
+      ),
+      'status_id' => array(
+        'description' => 'The {cel_5d_payment_statuses}.sid of this payment.',
+        'type' => 'int',
+        'length' => 11,
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'date' => array(
+        'description' => 'The time this payment was made.',
+        'mysql_type' => 'timestamp',
+        'not null' => TRUE,
+      ),
+      'payment_data' => array(
+        'description' => 'Serialized payment data.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('pid'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'payment_type' => array('payment_type'),
+      'status_id' => array('status_id'),
+      'date' => array('date'),
+    ),
+    // These tables were originally created with MyISAM; the order
+    // of their columns will not be supported by InnoDB, as foreign
+    // keys must be at the beginning of the table. So, I'm disabling
+    // enforced foreign keys.
+    /*'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+      'status_id' => array(
+        'table' => 'cel_5d_payment_statuses',
+        'columns' => array('status_id' => 'sid'),
+      ),
+    ),*/
+  );
+
+  $schema['cel_5d_purchaser_info'] = array(
+    'description' => 'Information about a purchaser.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'The {users}.uid of the paying user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'preferred_name' => array(
+        'description' => 'The user\'s preferred name.',
+        'type' => 'varchar',
+        'length' => 250,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'daytime_phone' => array(
+        'description' => 'The user\'s daytime phone number.',
+        'type' => 'varchar',
+        'length' => 35,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'updated' => array(
+        'description' => 'Timestamp when the record updated or created.',
+        'mysql_type' => 'timestamp',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'updated' => array('updated'),
+    ),
+    // These tables were originally created with MyISAM; the order
+    // of their columns will not be supported by InnoDB, as foreign
+    // keys must be at the beginning of the table. So, I'm disabling
+    // enforced foreign keys.
+    /*'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),*/
+    'primary key' => array('uid'),
+  );
+
+  $schema['cel_5d_subscriber_info'] = array(
+    'description' => 'Information about a subscriber.',
+    'fields' => array(
+      'sid' => array(
+        'description' => 'The PK.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the paying user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'school_name' => array(
+        'description' => 'The name of the subscriber\'s school.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => "",
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+    // These tables were originally created with MyISAM; the order
+    // of their columns will not be supported by InnoDB, as foreign
+    // keys must be at the beginning of the table. So, I'm disabling
+    // enforced foreign keys.
+    /*'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),*/
+    'primary key' => array('sid'),
+  );
+
+  $schema['cel_5d_subscriptions'] = array(
+    'description' => 'Information about a subscription.',
+    'fields' => array(
+      'sid' => array(
+        'description' => 'The PK.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'date' => array(
+        'description' => 'Creation date of this subscription.',
+        'mysql_type' => 'timestamp',
+        'not null' => TRUE,
+      ),
+      'start_date' => array(
+        'description' => 'Start date of subscription.',
+        'mysql_type' => 'timestamp',
+        'not null' => FALSE, // We'll correct this in hook_install
+      ),
+      'expire_date' => array(
+        'description' => 'End date of subscription.',
+        'mysql_type' => 'timestamp',
+        'not null' => FALSE, // We'll correct this in hook_install
+      ),
+      'module_id' => array(
+        'description' => 'The {nodes}.nid of the module.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'licences_qty' => array(
+        'description' => 'The quantity of licenses.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'length' => 4,
+        'default' => 1,
+      ),
+      'registrar_id' => array(
+        'description' => '{user}.uid of the registering user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'payment_id' => array(
+        'description' => '{cel_5d_payments}.pid of the registering user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'module_id' => array('module_id'),
+      'registrar_id' => array('registrar_id'),
+      'payment_id' => array('payment_id'),
+      'date' => array('date'),
+      'start_date' => array('start_date', 'expire_date'),
+      'expire_date' => array('expire_date'),
+      'date' => array('date'),
+      'licences_qty' => array('licences_qty'),
+    ),
+    // These tables were originally created with MyISAM; the order
+    // of their columns will not be supported by InnoDB, as foreign
+    // keys must be at the beginning of the table. So, I'm disabling
+    // enforced foreign keys.
+    /*'foreign keys' => array(
+      'module_id' => array(
+        'table' => 'nodes',
+        'columns' => array('module_id' => 'nid'),
+      ),
+      'registrar_id' => array(
+        'table' => 'users',
+        'columns' => array('registrar_id' => 'uid'),
+      ),
+      'payment_id' => array(
+        'table' => 'cel_5d_payments',
+        'columns' => array('payment_id' => 'pid'),
+      ),
+    ),*/
+    'primary key' => array('sid'),
+  );
+
+  $schema['cel_5d_subscriptions_subscribers_map'] = array(
+    'description' => 'Information about a subscriber.',
+    'fields' => array(
+      'smid' => array(
+        'description' => 'The PK.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'subscription_id' => array(
+        'description' => 'The {cel_5d_subscriptions}.sid of the paying user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'subscriber_uid' => array(
+        'description' => 'The {users}.uid of the paying user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date_added' => array(
+        'mysql_type' => 'timestamp',
+        'not null' => TRUE,
+      ),
+    ),
+    'unique keys' => array(
+      'subscription_subscriber' => array('subscription_id', 'subscriber_uid'),
+    ),
+    'indexes' => array(
+      'date_added' => array('date_added'),
+    ),
+    // These tables were originally created with MyISAM; the order
+    // of their columns will not be supported by InnoDB, as foreign
+    // keys must be at the beginning of the table. So, I'm disabling
+    // enforced foreign keys.
+    /*'foreign keys' => array(
+      'subscription_id' => array(
+        'table' => 'cel_5d_subscriptions',
+        'columns' => array('subscription_id' => 'sid'),
+      ),
+      'subscriber_uid' => array(
+        'table' => 'users',
+        'columns' => array('subscriber_uid' => 'uid'),
+      ),
+    ),*/
+    'primary key' => array('smid'),
+  );
+
+  $schema['cel_5d_trials'] = array(
+    'description' => 'Module trials',
+    'fields' => array(
+      'tid' => array(
+        'description' => 'The PK.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the paying user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Can be 1 or 0.',
+        'type' => 'int',
+        'length' => 4,
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 1,
+        'binary' => TRUE,
+      ),
+      'start_date' => array(
+        'description' => 'The start of the trial.',
+        'mysql_type' => 'timestamp',
+        'not null' => TRUE,
+      ),
+      'expire_date' => array(
+        'description' => 'The end of the trial.',
+        'mysql_type' => 'timestamp',
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'status' => array('status'),
+      'start_date' => array('start_date', 'expire_date'),
+      'expire_date' => array('expire_date')
+    ),
+    'unique keys' => array(
+      'uid' => array('uid'),
+    ),
+    // These tables were originally created with MyISAM; the order
+    // of their columns will not be supported by InnoDB, as foreign
+    // keys must be at the beginning of the table. So, I'm disabling
+    // enforced foreign keys.
+    /*'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),*/
+    'primary key' => array('tid'),
+  );
+  return $schema;
+}

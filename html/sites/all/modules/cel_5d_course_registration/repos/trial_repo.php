@@ -35,10 +35,10 @@ class TrialRepo extends Repository {
 	{
 		// build sql query
 		$sql = db_query("	SELECT * 
-							FROM {$this->table}
-							WHERE $this->id = %d
+							FROM \{{$this->table}\}
+							WHERE $this->id = :trial_id
 							LIMIT 1", 
-						$trial_id);
+						array('trial_id' => $trial_id));
 		
 		// get purchaser data form DB and buld a purchaser object
 		return $this->buildTrialObjFillData( db_fetch_array($sql) );
@@ -78,16 +78,12 @@ class TrialRepo extends Repository {
 	public function getRosterTrialsForGridJson($sort_field='id', $sort_direction='ASC')
 	{
 		$sql = 'SELECT 
-                            u.*,
-                            t.start_date,
-                            t.expire_date,
-                            (SELECT pv.value FROM profile_values as pv WHERE pv.uid=u.uid AND pv.fid=1) as profile_first_name,
-                            (SELECT pv.value FROM profile_values as pv WHERE pv.uid=u.uid AND pv.fid=2) as profile_last_name,
-                            (SELECT pv.value FROM profile_values as pv WHERE pv.uid=u.uid AND pv.fid=4) as profile_current_position,
-                            (SELECT pv.value FROM profile_values as pv WHERE pv.uid=u.uid AND pv.fid=5) as profile_organization
-                        FROM {'.$this->table.'} as t
-                        JOIN {users} as u ON (t.uid=u.uid)
-                        ORDER BY '.$sort_field.' ' . $sort_direction;
+          u.*,
+          t.start_date,
+          t.expire_date
+      FROM {'.$this->table.'} as t
+      JOIN {users} as u ON (t.uid=u.uid)
+      ORDER BY '.$sort_field.' ' . $sort_direction;
 
 		$all_trials = $this->dbGetRecordsArr($sql);
 		
@@ -95,72 +91,119 @@ class TrialRepo extends Repository {
 			return FALSE;
 		}
 		
+		$users = array();
 		$trialsObj_arr = array();
 		foreach($all_trials as $trial)
 		{
+			// Get user values
+			$uid = $trial['uid'];
+			if(!isset($users[$uid])) {
+    		$users[$uid] = user_load($uid);
+    	}
+
+    	$user = $users[$uid];
+    	$trial['field_first_name'] = "";
+    	$trial['field_last_name'] = "";
+    	$trial['field_organization'] = "";
+
+    	$first_names = array();
+    	$first_name_items = field_get_items('user', $user, 'field_first_name');
+    	if(!empty($first_name_items)) {
+    		foreach($first_name_items as $value) {
+	        $first_name_item = field_view_value('user', $user, 'field_first_name', $value);
+	        $first_names[] = render($first_name_item);
+	      }
+    	}
+
+    	$trial['field_first_name'] = implode(" ", $first_names);
+
+
+    	$last_names = array();
+    	$last_name_items = field_get_items('user', $user, 'field_last_name');
+    	if(!empty($last_name_items)) {
+    		foreach($last_name_items as $value) {
+	        $last_name_item = field_view_value('user', $user, 'field_last_name', $value);
+	        $last_names[] = render($last_name_item);
+	      }
+    	}
+
+    	$trial['field_last_name'] = implode(" ", $last_names);
+
+    	$organizations = array();
+    	$organization_items = field_get_items('user', $user, 'field_organization');
+    	if(!empty($organization_items)) {
+    		foreach($organization_items as $value) {
+	        $organization_item = field_view_value('user', $user, 'field_organization', $value);
+	        $organizations[] = render($organization_item);
+	      }
+    	}
+
+    	$trial['field_organization'] = implode(" ", $organizations);
+
 			$trialsObj_arr[] = $this->entityBuilder->buildEntity($trial);
 		}
 		return $trialsObj_arr;		
 	}
 
 
-        public function deactivateExpiredTrials(){
-            $exp_users = $this->getExpiredTrialUsers();
+  public function deactivateExpiredTrials(){
+      $exp_users = $this->getExpiredTrialUsers();
 
-            if(!$exp_users){
-                return FALSE;
-            }
+      if(!$exp_users){
+          return FALSE;
+      }
 
-            foreach ($exp_users as $usr){
-                // remove role
-                $this->removeTrialRoleByUserID($usr->uid);
-            }
+      foreach ($exp_users as $usr){
+          // remove role
+          $this->removeTrialRoleByUserID($usr->uid);
+      }
 
-            return TRUE;
-        }
-
-
-        public function removeTrialRoleByUserID($uid){
-            // remove user role
-            	// load specific user
-		$user = user_load($uid);
-
-                if(!$user){
-                    return FALSE;
-                }
-
-		module_load_include('php', 'cel_5d_course_registration', 'repos/roles_repo');
-		$rolesRepo = new RolesRepo();
-
-                $transaction = db_query("UPDATE cel_5d_trials SET STATUS = 0 WHERE uid = ".$uid);
-
-                if(!$transaction){
-                    return FALSE;
-                }
-
-                $user_info['roles'] = $user->roles;
-
-		// unasign 5D Trial role
-		// unset 5d Cources Trial Temp role
-		if (isset($user_info['roles'][14])){
-			unset($user_info['roles'][14]);
-		}
-
-		return user_save($user, $user_info);
-        }
+      return TRUE;
+  }
 
 
-        public function getExpiredTrialUsers(){
-            // get users from DB table accoriding to expire field
-            $sql = "SELECT t.*
-                    FROM {cel_5d_trials} as t
-                    WHERE t.expire_date < NOW()
-                    AND t.status = 1";
+  public function removeTrialRoleByUserID($uid){
+      // remove user role
+      	// load specific user
+$user = user_load($uid);
 
-            $records = $this->dbGetRecordsObj($sql);
+          if(!$user){
+              return FALSE;
+          }
 
-            return $records;
-        }
+module_load_include('php', 'cel_5d_course_registration', 'repos/roles_repo');
+$rolesRepo = new RolesRepo();
+
+          $transaction = db_query("UPDATE {cel_5d_trials} SET STATUS = 0 WHERE uid = ".$uid);
+
+          if(!$transaction){
+              return FALSE;
+          }
+
+          $user_info['roles'] = $user->roles;
+
+// unasign 5D Trial role
+// unset 5d Cources Trial Temp role
+$trial_role = array_search('5D Trial', $user_info['roles'], true);
+if($trial_role !== false){
+	unset($user_info['roles'][$trial_role]);
+} 
+
+return user_save($user, $user_info);
+  }
+
+
+  public function getExpiredTrialUsers(){
+      // get users from DB table accoriding to expire field
+      $sql = "SELECT t.*
+              FROM {cel_5d_trials} as t
+              WHERE t.expire_date < NOW()
+              AND t.status = 1";
+
+      $records = $this->dbGetRecordsObj($sql);
+
+      return $records;
+  }
 
 
 
@@ -332,14 +375,14 @@ class TrialRepo extends Repository {
 	 */
 	public function getTrialsRegisteredDaysAgoByDays(int $days){
 		
-		if(!$days){
+		if(empty($days)){
 			$days = 0;
 		}
 		
 		$sql = "SELECT t.*
 				FROM {cel_5d_trials} as t
-				WHERE date(t.start_date) = CURDATE() - INTERVAL %d DAY";
-		$records = $this->dbGetRecordsObj( $sql, array($days));
+				WHERE date(t.start_date) = CURDATE() - INTERVAL {$days} DAY";
+		$records = $this->dbGetRecordsObj($sql);
 		
 		// validate records data
 		if(!$records || empty($records)){
@@ -358,14 +401,16 @@ class TrialRepo extends Repository {
 	
 	public function getTrialUsersIDExpiredDaysAgoByDays($days)
 	{
-		if(!$days){
+		if(empty($days)){
 			return false;
 		}
+
+		$days = (int) $days;
 		
 		$sql = "SELECT t.*
 				FROM {cel_5d_trials} as t
-				WHERE date(t.expire_date) = CURDATE() - INTERVAL %d DAY";
-		$records = $this->dbGetRecordsObj($sql, array($days));
+				WHERE date(t.expire_date) = CURDATE() - INTERVAL {$days} DAY";
+		$records = $this->dbGetRecordsObj($sql);
 
 		// validate records data
 		if(!$records || empty($records)){
@@ -384,14 +429,14 @@ class TrialRepo extends Repository {
 	
 	public function getTrialUserIDsExpireBeforeDaysByDays(int $days)
 	{
-		if(!$days){
+		if(empty($days)){
 			$days = 0;
 		}
 		
 		$sql = "SELECT t.*
 				FROM {cel_5d_trials} as t
-				WHERE date(t.expire_date) = CURDATE() + INTERVAL %d DAY";
-		$records = $this->dbGetRecordsObj( $sql, array($days));
+				WHERE date(t.expire_date) = CURDATE() + INTERVAL {$days} DAY";
+		$records = $this->dbGetRecordsObj( $sql);
 		
 		// validate records data
 		if(!$records || empty($records)){

@@ -165,10 +165,10 @@ class PurchaserRepo {
 		
 		// 1. update the profile information using dropal user management func
 		// set up updated values into a temp array		
-		$user_info['profile_first_name']	= $purchaserObj->getProfile_first_name();
-		$user_info['profile_last_name'] 	= $purchaserObj->getProfile_last_name();
-		$user_info['profile_current_position'] 	= $purchaserObj->getProfile_current_position();
-		$user_info['profile_organization']		= $purchaserObj->getProfile_organization();
+		$user_info['field_first_name']	= $purchaserObj->getProfile_first_name();
+		$user_info['field_last_name'] 	= $purchaserObj->getProfile_last_name();
+		$user_info['field_current_position'] 	= $purchaserObj->getProfile_current_position();
+		$user_info['field_organization']		= $purchaserObj->getProfile_organization();
 		$user_info['roles']		= $rolesRepo->getPurchaserRolesArr($purchaserObj, $subscriptionObj);
 		
 		

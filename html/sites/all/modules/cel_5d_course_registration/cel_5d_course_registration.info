@@ -3,3 +3,5 @@ description = "Provides 5D E-learning Course Registration logic. Ported from 6.x
 package = "CEL"
 version = "7.x-0.1-dev"
 core = "7.x"
+
+files[] = cel_5d_forms.php

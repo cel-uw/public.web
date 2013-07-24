@@ -103,8 +103,8 @@
 		// build sql query
 		$sql = db_query("SELECT *
 				FROM {role}
-				WHERE name = '%s'
-				LIMIT 1", $role_title);
+				WHERE name = :role_title
+				LIMIT 1", array(':role_title' => $role_title));
 
 		// get role data form DB
 		return db_fetch_object($sql);
@@ -114,7 +114,7 @@
 	function cel_5d_helper_build_credit_card_info_form(){
 		$out = 'Credit card Info';
 		
-		$out .= '<form method="POST" action="/5d-course/473/payment/confirm" >';
+		$out .= '<form method="POST" action="/5d-course/1/payment/confirm" >';
 		$out .= '<input type="submit" value="Confirm">';
 		$out .= '</form>';
 		

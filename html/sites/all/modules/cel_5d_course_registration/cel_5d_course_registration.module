@@ -2,6 +2,7 @@
 // load forms and helper files
 //   module_load_include('php', 'cel_5d_course_registration', 'cel_5d_forms');
 module_load_include('php', 'cel_5d_course_registration', 'cel_5d_helpers');
+module_load_include('php', 'cel_5d_course_registration', 'cel_5d_forms');
 module_load_include('php', 'cel_5d_course_registration', 'repos/subscription_repo');
 module_load_include('php', 'fuse_libs', 'classes/fuse_exception');
 
@@ -37,7 +38,7 @@ function cel_5d_course_registration_menu()
       'file'     => 'cel_5d_forms.php',
       'type'     =>  MENU_NORMAL_ITEM,
       'page callback'    => 'drupal_get_form',
-      'page arguments'   => array('user_register'),
+      'page arguments'   => array('user_register_form'),
       'access callback'   => true,
   );
   $items['user/%user/5d-course/trial/start'] = array(
@@ -79,7 +80,7 @@ function cel_5d_course_registration_menu()
       'title'   => '5D Course User Registration',
       'file'     => 'cel_5d_forms.php',
       'page callback'    => 'drupal_get_form',
-      'page arguments'   => array('user_register'),
+      'page arguments'   => array('user_register_form'),
       'access callback'   => true,
       'type'     =>  MENU_NORMAL_ITEM,
   );
@@ -337,26 +338,26 @@ function manage_trials_page()
     $jqgridClass->addField($idField);
 
     // add First Name field
-    $firstNameField = new BasicField('profile_first_name');
+    $firstNameField = new BasicField('field_first_name');
     $firstNameField->setTitle('First Name')
       ->setWidth(5);
     $jqgridClass->addField($firstNameField);  
     
     // add Last Name field
-    $lastNameField = new BasicField('profile_last_name');
+    $lastNameField = new BasicField('field_last_name');
     $lastNameField->setTitle('Last Name')
       ->setWidth(5);
     $jqgridClass->addField($lastNameField);      
     
     // add Position field
-    $positionField = new BasicField('profile_current_position');
+    $positionField = new BasicField('field_current_position');
     $positionField->setTitle('Current Position')
       ->makeUnsortable()
       ->setWidth(7);
     $jqgridClass->addField($positionField);      
     
     // add Organization field
-    $organizationField = new BasicField('profile_organization');
+    $organizationField = new BasicField('field_organization');
     $organizationField->setTitle('Organization')
       ->makeUnsortable()
       ->setWidth(7);
@@ -421,7 +422,7 @@ function roster_subscriptions_page()
       $fieldObj->setTitle($title);
       
       // make unsortable Organization and Current position
-      if($name == 'profile_current_position' || $name == 'profile_organization' || $name == 'registrar_organization' ){
+      if($name == 'field_current_position' || $name == 'field_organization' || $name == 'registrar_organization' ){
         $fieldObj->makeUnsortable();
       }elseif($name == 'subscriber_uid'){
         // set width value

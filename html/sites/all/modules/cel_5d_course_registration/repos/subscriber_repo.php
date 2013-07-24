@@ -38,11 +38,11 @@ class SubscriberRepo extends Repository {
 				'mail' 	=> $subscriberObj->getMail(),
 				'status' 	=> 1,
 				'init'		=> $subscriberObj->getMail(),
-				'roles'		=> array(12=>'5D Subscriber 473'),
-				'profile_first_name' 	=> $subscriberObj->getProfile_first_name(),
-				'profile_last_name'	 	=> $subscriberObj->getProfile_last_name(),
-				'profile_current_position'	=> $subscriberObj->getProfile_current_position(),
-				'profile_organization'		=> $subscriberObj->getProfile_organization(),
+				'roles'		=> array($module_role->rid=>$module_role->name),
+				'field_first_name' 	=> $subscriberObj->getProfile_first_name(),
+				'field_last_name'	 	=> $subscriberObj->getProfile_last_name(),
+				'field_current_position'	=> $subscriberObj->getProfile_current_position(),
+				'field_organization'		=> $subscriberObj->getProfile_organization(),
 		);
 	
 		$new_user = user_save(null, $new_user);
@@ -81,10 +81,10 @@ class SubscriberRepo extends Repository {
 	
 	
 	public function checkSubscriberByUserID($uid){
-		$sql = "SELECT sm.subscriber_uid FROM cel_5d_subscriptions_subscribers_map as sm
-				WHERE sm.subscriber_uid = %d
+		$sql = "SELECT sm.subscriber_uid FROM {cel_5d_subscriptions_subscribers_map} as sm
+				WHERE sm.subscriber_uid = ':uid'
 				LIMIT 1";
-		return $this->dbGetVar('subscriber_uid', $sql, array($uid));
+		return $this->dbGetVar('subscriber_uid', $sql, array(':uid' => $uid));
 	}
 	
 	
@@ -107,8 +107,9 @@ class SubscriberRepo extends Repository {
 		
 		// unasign 5D Trial role
 		// unset 5d Cources Trial Temp role
-		if (isset($user_info['roles'][14])){
-			unset($user_info['roles'][14]);
+		$trial_role = array_search('5D Trial', $user_info['roles'], true);
+		if($trial_role !== false){
+			unset($user_info['roles'][$trial_role]);
 		} 
 
 		return user_save($user, $user_info);
@@ -169,9 +170,9 @@ class SubscriberRepo extends Repository {
 	public function getSubscribersBySubscriptionID($subscription_id)
 	{
 		// ge list of subscriber IDs
-		$sql = 'SELECT subscriber_uid FROM cel_5d_subscriptions_subscribers_map WHERE subscription_id = %d';
+		$sql = 'SELECT subscriber_uid FROM {cel_5d_subscriptions_subscribers_map} WHERE subscription_id = :subscription_id';
 // 		$subscriber_ids = $this->dbGetRecordsObj($sql, array($subscription_id));
-		$subscriber_ids = $this->dbGetRecordsFieldArr('subscriber_uid', $sql, array($subscription_id));
+		$subscriber_ids = $this->dbGetRecordsFieldArr('subscriber_uid', $sql, array(':subscription_id' => $subscription_id));
 		
 		$subscribersObj_arr = array();
 		if($subscriber_ids && !empty($subscriber_ids))
