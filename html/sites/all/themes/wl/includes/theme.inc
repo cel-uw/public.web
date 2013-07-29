@@ -6,11 +6,14 @@
 
 /**
  * Returns HTML for a set of links.
+ *
+ * @param array $vars
+ * @return string
  */
-function theme_bootstrap_links($variables) {
-  $links = $variables['links'];
-  $attributes = $variables['attributes'];
-  $heading = $variables['heading'];
+function theme_bootstrap_links($vars) {
+  $links = $vars['links'];
+  $attributes = $vars['attributes'];
+  $heading = $vars['heading'];
 
   global $language_url;
   $output = '';
@@ -124,50 +127,56 @@ function theme_bootstrap_links($variables) {
 
 /**
  * theme_bootstrap_btn_dropdown
+ *
+ * @param array $vars
+ * @return string
  */
-function theme_bootstrap_btn_dropdown($variables) {
+function theme_bootstrap_btn_dropdown($vars) {
   $type_class = '';
   $sub_links ='';
 
-  $variables['attributes']['class'][] = 'btn-group';
+  $vars['attributes']['class'][] = 'btn-group';
   // Type class
-  if (isset($variables['type'])) {
-    $type_class = ' btn-'. $variables['type'];
+  if (isset($vars['type'])) {
+    $type_class = ' btn-'. $vars['type'];
   }
 
   // Start markup
-  $output = '<div'. drupal_attributes($variables['attributes']) .'>';
+  $output = '<div'. drupal_attributes($vars['attributes']) .'>';
 
   // Ad as string if its not a link
-  if (is_array($variables['label'])) {
-    $output .= l($variables['label']['title'], $$variables['label']['href'], $variables['label']);
+  if (is_array($vars['label'])) {
+    $output .= l($vars['label']['title'], $$vars['label']['href'], $vars['label']);
   }
 
-  $output .= '<a class="btn'. $type_class .' dropdown-toggle" data-toggle="dropdown" href="#">';
+  $output .= '<button type="button" class="btn'. $type_class .' dropdown-toggle" data-toggle="dropdown">';
 
   // Its a link so create one
-  if (is_string($variables['label'])) {
-    $output .= check_plain($variables['label']);
+  if (is_string($vars['label'])) {
+    $output .= check_plain($vars['label']);
   }
 
-  if (is_array($variables['links'])) {
-    $sub_links = theme('links', array('links' => $variables['links'],'attributes' => array('class' => array('dropdown-menu'))));
+  if (is_array($vars['links'])) {
+    $sub_links = theme('links', array('links' => $vars['links'],'attributes' => array('class' => array('dropdown-menu'))));
   }
 
   // Finish markup
-  $output .= '<span class="caret"></span></a>' . $sub_links . '</div>';
+  $output .= '<span class="caret"></span></button>' . $sub_links . '</div>';
 
   return $output;
 }
 
-/*
+/**
  * Overwrites the default item list to make it prettier
+ *
+ * @param array $vars
+ * @return string
  */
-function bootstrap_item_list($variables) {
-  $items = $variables['items'];
-  $title = $variables['title'];
-  $type = $variables['type'];
-  $attributes = $variables['attributes'];
+function wl_item_list($vars) {
+  $items = $vars['items'];
+  $title = $vars['title'];
+  $type = $vars['type'];
+  $attributes = $vars['attributes'];
   $output = '';
 
   if (isset($title)) {
@@ -175,7 +184,7 @@ function bootstrap_item_list($variables) {
   }
 
   if (!empty($items)) {
-    $output .= "<$type" . drupal_attributes($attributes) . '>';
+    $output .= "<{$type}" . drupal_attributes($attributes) . '>';
     $num_items = count($items);
     $i = 0;
     foreach ($items as $item) {
@@ -211,7 +220,7 @@ function bootstrap_item_list($variables) {
       }
       $output .= '<li' . drupal_attributes($attributes) . '>' . $data . "</li>\n";
     }
-    $output .= "</$type>";
+    $output .= "</{$type}>";
   }
  
   return $output;
@@ -219,9 +228,12 @@ function bootstrap_item_list($variables) {
 
 /**
  * Returns HTML for status and/or error messages, grouped by type.
+ *
+ * @param array $vars
+ * @return string
  */
-function bootstrap_status_messages($variables) {
-  $display = $variables['display'];
+function wl_status_messages($vars) {
+  $display = $vars['display'];
   $output = '';
 
   $status_heading = array(
@@ -245,8 +257,8 @@ function bootstrap_status_messages($variables) {
 
   foreach (drupal_get_messages($display) as $type => $messages) {
     $class = (isset($status_class[$type])) ? ' alert-' . $status_class[$type] : '';
-    $output .= "<div class=\"alert alert-block$class\">\n";
-    $output .= "  <a class=\"close\" data-dismiss=\"alert\" href=\"#\">&times;</a>\n";
+    $output .= "<div class=\"alert alert-block{$class}\">\n";
+    $output .= "  <button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>\n";
 
     if (!empty($status_heading[$type])) {
       $output .= '<h4 class="element-invisible">' . $status_heading[$type] . "</h4>\n";
@@ -270,15 +282,22 @@ function bootstrap_status_messages($variables) {
 
 /**
  * Implements hook_css_alter().
+ *
+ * @param array &$css
  */
-function bootstrap_css_alter(&$css) {
-  $theme_path = drupal_get_path('theme', 'bootstrap');
+function wl_css_alter(&$css) {
+  $theme_path = drupal_get_path('theme', 'wl');
   // Load excluded CSS files from theme.
-  $excludes = _bootstrap_alter(bootstrap_theme_get_info('exclude'), 'css');
+  $excludes = _wl_alter(wl_theme_get_info('exclude'), 'css');
   // Add Bootstrap CDN file and overrides.
   if (theme_get_setting('cdn_bootstrap')){
-    // Add CDN.
-    $cdn = '//netdna.bootstrapcdn.com/twitter-bootstrap/'. theme_get_setting('cdn_bootstrap_version')  .'/css/bootstrap-combined.min.css';
+    
+    $bootstrap_version = theme_get_setting('cdn_bootstrap_version');
+    $cdn = "//netdna.bootstrapcdn.com/twitter-bootstrap/{$bootstrap_version}/css/bootstrap-combined.min.css";
+    if(substr($bootstrap_version, 0, 2) === "3.") {
+      $cdn = "//netdna.bootstrapcdn.com/bootstrap/{$bootstrap_version}/css/bootstrap.min.css";
+    }
+
     $css[$cdn] = array(
       'data' => $cdn,
       'type' => 'external',
@@ -289,6 +308,7 @@ function bootstrap_css_alter(&$css) {
       'browsers' => array('IE' => TRUE, '!IE' => TRUE),
       'weight' => -2,
     );
+
     // Add overrides.
     $override = $theme_path . '/css/overrides.css';
     $css[$override] = array(
@@ -307,21 +327,23 @@ function bootstrap_css_alter(&$css) {
 
 /**
  * Implements hook_js_alter().
+ *
+ * @param array &$js
  */
-function bootstrap_js_alter(&$js) {
+function wl_js_alter(&$js) {
   $files = array();
 
   // Load excluded JS files from theme.
-  $excludes = _bootstrap_alter(bootstrap_theme_get_info('exclude'), 'js');
+  $excludes = _wl_alter(wl_theme_get_info('exclude'), 'js');
 
   // If bootstrap_ui available, we should not add js from theme info file.
   if (module_exists('bootstrap_ui')) {
     libraries_load('bootstrap', 'minified');
   }
 
-  $theme_path = drupal_get_path('theme', 'bootstrap');
+  $theme_path = drupal_get_path('theme', 'wl');
 
-  // Replace core progress bar JS with the Bootstrap equivilent.
+  // Replace core progress bar JS with the Bootstrap equivalent.
   if (isset($js['misc/progress.js']) && !empty($js['misc/progress.js'])) {
     unset($js['misc/progress.js']);
     $progress = $theme_path . '/js/progress.js';
@@ -341,10 +363,38 @@ function bootstrap_js_alter(&$js) {
     $js[$ajax_view]['group'] = JS_THEME;
   }
 
-  $js = array_diff_key($js, $excludes);
-  if (theme_get_setting('cdn_bootstrap')) {
-    $files[] = '//netdna.bootstrapcdn.com/twitter-bootstrap/'. theme_get_setting('cdn_bootstrap_version')  .'/js/bootstrap.min.js';
+  if(theme_get_setting('cdn_bootstrap')) {
+    $bootstrap_version = theme_get_setting('cdn_bootstrap_version');
+    $cdn = "//netdna.bootstrapcdn.com/twitter-bootstrap/{$bootstrap_version}/js/bootstrap.min.js";
+
+    if(substr($bootstrap_version, 0, 2) === "3.") {
+      $cdn = "//netdna.bootstrapcdn.com/bootstrap/{$bootstrap_version}/js/bootstrap.min.js";
+    }
+
+    $files[] = $cdn;
   }
+
+  if(theme_get_setting('cdn_jquery')) {
+    // Swap out jQuery to use the CDN
+    $version = theme_get_setting('cdn_jquery_version');
+    $js['misc/jquery.js']['data'] = '//ajax.googleapis.com/ajax/libs/jquery/' . $version . '/jquery.min.js';;
+    $js['misc/jquery.js']['type'] = 'external';
+    $js['misc/jquery.js']['version'] = $version;
+    $js['misc/jquery.js']['weight'] -= 2;
+  }
+
+  if(theme_get_setting('cdn_jquery_migrate')) {
+    // Include the migrate plugin to account for deprecated jQuery
+    $version = theme_get_setting('cdn_jquery_migrate_version');
+    $migrate = '//code.jquery.com/jquery-migrate-' . $version . '.min.js';
+    $js[$migrate] = $js['misc/jquery.js'];
+    $js[$migrate]['data'] = $migrate;
+    $js[$migrate]['version'] = $version;
+    $js[$migrate]['type'] = 'external';
+    $js[$migrate]['weight']++;
+  }
+
+  $js = array_diff_key($js, $excludes);
 
   // Rearrange / Add JS
   $group = -50;
@@ -360,7 +410,16 @@ function bootstrap_js_alter(&$js) {
   }
 }
 
-function _bootstrap_alter($files, $type) {
+/**
+ * Get a list of keys in a file array
+ *
+ * Used to properly exclude files
+ *
+ * @param array $files
+ * @param string $type
+ * @return array
+ */
+function _wl_alter($files, $type) {
   $output = array();
   
   foreach($files as $key => $value) {
@@ -375,39 +434,50 @@ function _bootstrap_alter($files, $type) {
 
 /**
  * Returns HTML for Bootstrap's progress bar.
+ *
+ * @param array $vars
+ * @return string HTML
  */
-function bootstrap_progress_bar($variables) {
+function wl_progress_bar($vars) {
   $output .= '<div id="progress" class="progress-wrapper">';
-  $output .= '  <div class="progress progress-striped progress-info active">';
-  $output .= '    <div class="bar" style="width: ' . $variables['percent'] . '%"></div>';
+  $output .= '  <div class="progress progress-striped active">';
+  $output .= '    <div class="progress-bar progress-bar-info" style="width: ' . $vars['percent'] . '%"></div>';
   $output .= '  </div>';
-  $output .= '  <div class="percentage pull-right">' . $variables['percent'] . '%</div>';
-  $output .= '  <div class="message">' . $variables['message'] . '</div>';
+  $output .= '  <div class="percentage pull-right">' . $vars['percent'] . '%</div>';
+  $output .= '  <div class="message">' . $vars['message'] . '</div>';
   $output .= '</div>';
   return $output;
 }
 
 /**
  * Returns HTML for Bootstrap's modal.
+ *
+ * @param array $vars
+ * @return string HTML
  */
-function bootstrap_bootstrap_modal($variables) {
-  $body = $variables['body'];
-  $links = $variables['footer'];
-  $heading = $variables['heading'];
-  $attributes = $variables['attributes'];
+function wl_bootstrap_modal($vars) {
+  $body = $vars['body'];
+  $links = $vars['footer'];
+  $heading = $vars['heading'];
+  $attributes = $vars['attributes'];
 
-  if (isset($variables['attributes']['class']) && is_string($variables['attributes']['class'])) { // Convert classes to an array.
-    $variables['attributes']['class'] = explode(' ', $variables['attributes']['class']);
+  if (isset($vars['attributes']['class']) && is_string($vars['attributes']['class'])) { // Convert classes to an array.
+    $vars['attributes']['class'] = explode(' ', $vars['attributes']['class']);
   }
 
-  $variables['attributes']['class'][] = 'modal';
+  $vars['attributes']['class'][] = 'modal';
+  $vars['attributes']['class'][] = 'fade';
 
-  $output = '<div'. drupal_attributes($variables['attributes']) .'>';
+  $output = '<div'. drupal_attributes($vars['attributes']) .'>';
+  $output .= '<div class="modal-dialog">';
+  $output .= '<div class="modal-content">';  
   $output .= '<div class="modal-header"> <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>';
-  $output .= '<h3>'. $variables['html_heading']? $variables['heading'] : check_plain($variables['heading']) .'</h3>';
+  $output .= '<h4>'. $vars['html_heading']? $vars['heading'] : check_plain($vars['heading']) .'</h4>';
   $output .= '</div>';
-  $output .= '<div class="modal-body">'. render($variables['body']) .'</div>';
-  $output .= '<div class="modal-footer">'. render($variables['footer']) .'</div>';
+  $output .= '<div class="modal-body">'. render($vars['body']) .'</div>';
+  $output .= '<div class="modal-footer">'. render($vars['footer']) .'</div>';
+  $output .= '</div>';
+  $output .= '</div>';
   $output .= '</div>';
 
   return $output;
@@ -415,15 +485,18 @@ function bootstrap_bootstrap_modal($variables) {
 
 /**
  * Returns HTML for Bootstrap's Collapse/Accordion.
+ *
+ * @param array $vars
+ * @return string HTML
  */
-function bootstrap_bootstrap_accordion($variables) {
-  $elements = $variables['elements'];
+function wl_bootstrap_accordion($vars) {
+  $elements = $vars['elements'];
 
-  if (empty($variables['id'])) {
+  if(empty($vars['id'])) {
     $accordion_id = 'accordion-'. md5($elements);
   }
   else {
-    $accordion_id = check_plain($variables['id']);
+    $accordion_id = check_plain($vars['id']);
   }
 
   $output = '<div class="accordion" id="'.$accordion_id.'">';
@@ -443,17 +516,20 @@ function bootstrap_bootstrap_accordion($variables) {
 
 /**
  * Add stripping to tables (in case they don't have .table-no-striping class)
+ *
+ * @param array $vars
+ * @return string HTML
  */
-function bootstrap_preprocess_table(&$variables) {
+function wl_preprocess_table(&$vars) {
 
-  if (isset($variables['attributes']['class']) && is_string($variables['attributes']['class'])) {
+  if (isset($vars['attributes']['class']) && is_string($vars['attributes']['class'])) {
     // Convert classes to an array.
-    $variables['attributes']['class'] = explode(' ', $variables['attributes']['class']);
+    $vars['attributes']['class'] = explode(' ', $vars['attributes']['class']);
   }
 
-  $variables['attributes']['class'][] = 'table';
-  if(!in_array('table-no-striping', $variables['attributes']['class'])) {
-    $variables['attributes']['class'][] = 'table-striped';
+  $vars['attributes']['class'][] = 'table';
+  if(!in_array('table-no-striping', $vars['attributes']['class'])) {
+    $vars['attributes']['class'][] = 'table-striped';
   }
   
 }

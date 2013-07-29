@@ -7,11 +7,18 @@
 
 /**
  * Display a view as a table style.
+ *
+ * @param array &$vars
  */
-function bootstrap_preprocess_views_view_table(&$vars) {
+function wl_preprocess_views_view_table(&$vars) {
   $vars['classes_array'][] = 'table';
 }
 
-function bootstrap_preprocess_views_view_grid(&$vars) {
+/**
+ * Display a view as a grid style.
+ *
+ * @param array &$vars
+ */
+function wl_preprocess_views_view_grid(&$vars) {
   $vars['class'] .= ' table';
 }

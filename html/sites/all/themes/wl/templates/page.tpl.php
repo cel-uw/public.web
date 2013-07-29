@@ -16,15 +16,15 @@
     <div class="row nav-row">
       <div id="navbar-wrapper" class="span12">
         <div id="navbar" role="banner" class="navbar">
-          <div class="navbar-inner">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <div class="container">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
-            </a>
+            </button>
 
             <?php if (!empty($page['navigation'])): ?>
-              <div class="nav-collapse">
+              <div class="nav-collapse collapse navbar-responsive-collapse">
                 <nav role="navigation">
                   <?php print render($page['navigation']); ?>
                 </nav>
@@ -32,7 +32,7 @@
             <?php endif; ?>
 
             <?php if (empty($page['navigation'])): ?>
-              <div class="nav-collapse">
+              <div class="nav-collapse collapse navbar-responsive-collapse">
                 <nav role="navigation">
                 <?php if (!empty($primary_nav)): ?>
                   <?php print render($primary_nav); ?>

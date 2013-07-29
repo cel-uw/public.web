@@ -1,11 +1,10 @@
 name = Where’s Lucian base theme
 description = Built on top of the Bootstrap base theme, to be used with Panels.
 core = 7.x
-version = 7.x-1.1
+version = 7.x-2.0
 package = WheresLucian.com
-project = wl_editing_framework
-project status url = "http://whereslucian.com/projects"
-base theme = bootstrap
+project = wl
+project status url = "http://whereslucian.com/drupal"
 
 ; Regions
 regions[navigation]     = 'Navigation'
@@ -14,6 +13,13 @@ regions[help]           = 'Help'
 regions[content]        = 'Content'
 regions[footer]         = 'Footer'
 
+settings[toggle_name] = 0
+settings[toggle_search] = 1
+
+; Settings for Bootstrap
+settings[cdn_bootstrap] = 1
+settings[cdn_bootstrap_version] = 3.0.0-rc1
+
 ; Settings for the jQuery CDN
 settings[cdn_jquery] = 1
 settings[cdn_jquery_version] = 1.10.1
@@ -21,9 +27,45 @@ settings[cdn_jquery_migrate] = 1
 settings[cdn_jquery_migrate_version] = 1.2.1
 
 ; CSS
-stylesheets[all][] = css/wl-overrides.css
+stylesheets[all][] = css/bootstrap-glyphicons.css
+stylesheets[all][] = css/overrides.css
 
 ; Scripts
 scripts[] = js/spin.js
 scripts[] = js/jquery.fitvids.js
 
+;Exclude
+;javascript
+;exclude[js][] = 'modules/contextual/contextual.js'
+
+;css
+;exclude[css][] = 'misc/vertical-tabs.css'
+exclude[css][] = 'modules/aggregator/aggregator.css'
+exclude[css][] = 'modules/block/block.css'
+exclude[css][] = 'modules/book/book.css'
+exclude[css][] = 'modules/comment/comment.css'
+exclude[css][] = 'modules/dblog/dblog.css'
+exclude[css][] = 'modules/file/file.css'
+exclude[css][] = 'modules/filter/filter.css'
+exclude[css][] = 'modules/forum/forum.css'
+exclude[css][] = 'modules/help/help.css'
+exclude[css][] = 'modules/menu/menu.css'
+exclude[css][] = 'modules/node/node.css'
+exclude[css][] = 'modules/openid/openid.css'
+exclude[css][] = 'modules/poll/poll.css'
+exclude[css][] = 'modules/search/search.css'
+exclude[css][] = 'modules/statistics/statistics.css'
+exclude[css][] = 'modules/syslog/syslog.css'
+;exclude[css][] = 'modules/system/admin.css'
+exclude[css][] = 'modules/system/maintenance.css'
+;exclude[css][] = 'modules/system/system.css'
+;exclude[css][] = 'modules/system/system.admin.css'
+;exclude[css][] = 'modules/system/system.base.css'
+exclude[css][] = 'modules/system/system.maintenance.css'
+exclude[css][] = 'modules/system/system.menus.css'
+exclude[css][] = 'modules/system/system.messages.css'
+exclude[css][] = 'modules/system/system.theme.css'
+exclude[css][] = 'modules/taxonomy/taxonomy.css'
+exclude[css][] = 'modules/tracker/tracker.css'
+exclude[css][] = 'modules/update/update.css'
+exclude[css][] = 'modules/user/user.css'

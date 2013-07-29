@@ -2,39 +2,43 @@
 
 /**
  * Returns HTML for primary and secondary local tasks.
+ *
+ * @param array &$vars
+ * @return string HTML output
  */
-function bootstrap_menu_local_tasks(&$variables) {
+function wl_menu_local_tasks(&$vars) {
   $output = '';
 
-  if (!empty($variables['primary'])) {
-    $variables['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
-    $variables['primary']['#prefix'] = '<ul class="nav nav-tabs">';
-    $variables['primary']['#suffix'] = '</ul>';
-    $output .= drupal_render($variables['primary']);
+  if (!empty($vars['primary'])) {
+    $vars['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
+    $vars['primary']['#prefix'] = '<ul class="nav nav-tabs">';
+    $vars['primary']['#suffix'] = '</ul>';
+    $output .= drupal_render($vars['primary']);
   }
 
-  if (!empty($variables['secondary'])) {
-    $variables['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
-    $variables['secondary']['#prefix'] = '<ul class="nav nav-pills">';
-    $variables['secondary']['#suffix'] = '</ul>';
-    $output .= drupal_render($variables['secondary']);
+  if (!empty($vars['secondary'])) {
+    $vars['primary']['#prefix'] = '<h2 class="element-invisible">' . t('Primary tabs') . '</h2>';
+    $vars['secondary']['#prefix'] = '<ul class="nav nav-pills">';
+    $vars['secondary']['#suffix'] = '</ul>';
+    $output .= drupal_render($vars['secondary']);
   }
 
   return $output;
 }
 
-
 /**
  * Returns HTML for primary and secondary local tasks.
  *
  * @ingroup themeable
+ * @param array $vars
+ * @return string HTML output
  */
-function bootstrap_menu_local_task($variables) {
-  $link = $variables['element']['#link'];
+function wl_menu_local_task($vars) {
+  $link = $vars['element']['#link'];
   $link_text = $link['title'];
   $classes = array();
 
-  if (!empty($variables['element']['#active'])) {
+  if (!empty($vars['element']['#active'])) {
     // Add text to indicate active tab for non-visual users.
     $active = '<span class="element-invisible">' . t('(active tab)') . '</span>';
 
@@ -52,12 +56,24 @@ function bootstrap_menu_local_task($variables) {
   return '<li class="' . implode(' ', $classes) . '">' . l($link_text, $link['href'], $link['localized_options']) . "</li>\n";
 }
 
-function bootstrap_menu_tree(&$variables) {
-  return '<ul class="menu nav">' . $variables['tree'] . '</ul>';
+/**
+ * Returns HTML for a menu tree
+ *
+ * @param array $vars
+ * @return string HTML output
+ */
+function wl_menu_tree(&$vars) {
+  return '<ul class="menu nav">' . $vars['tree'] . '</ul>';
 }
 
-function bootstrap_menu_link(array $variables) {
-  $element = $variables['element'];
+/**
+ * Returns HTML for a menu link
+ *
+ * @param array $vars
+ * @return string HTML output
+ */
+function wl_menu_link($vars) {
+  $element = $vars['element'];
   $sub_menu = '';
   
   if ($element['#below']) {

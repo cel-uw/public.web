@@ -18,12 +18,12 @@
  *
  * @ingroup themeable
  */
-function bootstrap_pager($variables) {
+function wl_pager($vars) {
   $output = "";
-  $tags = $variables['tags'];
-  $element = $variables['element'];
-  $parameters = $variables['parameters'];
-  $quantity = $variables['quantity'];
+  $tags = $vars['tags'];
+  $element = $vars['element'];
+  $parameters = $vars['parameters'];
+  $quantity = $vars['quantity'];
 
   global $pager_page_array, $pager_total;
 

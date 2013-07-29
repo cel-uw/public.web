@@ -1,24 +1,18 @@
 <?php
 
 /**
- * A wrapper function for bootstrap_theme_get_settings().
+ * A wrapper function for theme_get_setting().
  * 
- * @param $name
- *   The name of the setting that you want to retrieve. 
- * @param $default (optional)
- *   The name (key) of the theme that you want to fetch the
- *   setting for. Defaults to NULL.   
- * @param $theme (optional)
- *   The key (machin-readable name) of a theme. Defaults to the key of the
- *   current theme if not defined.
- *   
- * @see 
- *   bootstrap_theme_get_setting().
+ * @param string $name The name of the setting that you want to retrieve. 
+ * @param string|null $theme The key (machin-readable name) of a theme.
+ *    Defaults to the key of the current theme if not defined.
+ * @see theme_get_setting()
+ * @return mixed
  */
-function bootstrap_theme_get_setting($name, $theme = NULL) {
+function wl_theme_get_setting($name, $theme = NULL) {
   switch ($name) {
     case 'exclude':
-      $setting = bootstrap_theme_get_info($name, $theme);
+      $setting = wl_theme_get_info($name, $theme);
       break;
     default:
       $setting = theme_get_setting($name, $theme);
@@ -28,12 +22,18 @@ function bootstrap_theme_get_setting($name, $theme = NULL) {
   return isset($setting) ? $setting : NULL; 
 }
 
-function bootstrap_get_settings($theme = NULL) {
-  if (!isset($theme)) {
+/**
+ * Returns the settings for a particular theme
+ *
+ * @param string|null $theme The theme name
+ * @return mixed
+ */
+function wl_get_settings($theme = NULL) {
+  if(!isset($theme)) {
     $theme = !empty($GLOBALS['theme_key']) ? $GLOBALS['theme_key'] : '';
   }
 
-  if ($theme) {
+  if($theme) {
     $themes = list_themes();
     $theme_object = $themes[$theme];
   }
@@ -41,7 +41,14 @@ function bootstrap_get_settings($theme = NULL) {
   return $theme_object->info['settings'];
 }
 
-function bootstrap_theme_get_info($setting_name, $theme = NULL) {
+/**
+ * Gets the setting for a theme (or subtheme)
+ *
+ * @param string $setting_name The name of the setting
+ * @param string|null $theme The name of the theme
+ * @return mixed
+ */
+function wl_theme_get_info($setting_name, $theme = NULL) {
   // If no key is given, use the current theme if we can determine it.
   if (!isset($theme)) {
     $theme = !empty($GLOBALS['theme_key']) ? $GLOBALS['theme_key'] : '';
@@ -72,11 +79,13 @@ function bootstrap_theme_get_info($setting_name, $theme = NULL) {
   return $output;
 }
 
-
 /**
  * Returns navigational links based on a menu tree
+ *
+ * @param array $tree
+ * @param int $lvl The current menu level
  */
-function bootstrap_menu_navigation_links($tree, $lvl = 0) {
+function wl_menu_navigation_links($tree, $lvl = 0) {
   $result = array();
 
   if (count($tree) > 0) {
@@ -91,7 +100,7 @@ function bootstrap_menu_navigation_links($tree, $lvl = 0) {
 
         // Dont do drugs and don't do any levels deeper then 1
         if ($lvl < 1) {
-          $new_item['below'] = bootstrap_menu_navigation_links($item['below'], $lvl+1);
+          $new_item['below'] = wl_menu_navigation_links($item['below'], $lvl+1);
         }
 
         $result['menu-'. $item['link']['mlid']] = $new_item;
@@ -103,16 +112,24 @@ function bootstrap_menu_navigation_links($tree, $lvl = 0) {
 }
 
 
-
-
 /**
- * theme_bootstrap_progress_bar
+ * Implements theme_bootstrap_progress_bar()
+ *
+ * @param array $vars
  */
-function bootstrap_bootstrap_progress_bar($variables) {
-  $variables['attributes']['class'][] = 'progress';
+function wl_bootstrap_progress_bar($vars) {
+  $vars['attributes']['class'][] = 'progress';
+  $vars['type'] = (!empty($vars['type'])) ? $vars['type'] : 'info';
+  $attributes = drupal_attributes($vars['attributes']);
   
-  return "<div". drupal_attributes($variables['attributes']) .">
+  return <<<EOL
+<div {$attributes}>
+  <div class="progress-bar progress-bar-{$vars['type']}" style="width: {$vars['percent']}%"></div>
+</div>
+EOL;
+
+  "<div". drupal_attributes($vars['attributes']) .">
   <div class=\"bar\"
-       style=\"width: ". $variables['percent'] ."%;\"></div>
+       style=\"width: ". $vars['percent'] ."%;\"></div>
   </div>";
 }

@@ -20,7 +20,7 @@ Drupal.progressBar = function (id, updateCallback, method, errorCallback) {
   // The WAI-ARIA setting aria-live="polite" will announce changes after users
   // have completed their current activity and not interrupt the screen reader.
   this.element = $('<div class="progress-wrapper" aria-live="polite"></div>');
-  this.element.html('<div id ="' + id + '" class="progress progress-striped progress-info active"><div class="bar"></div></div>' +
+  this.element.html('<div id ="' + id + '" class="progress progress-striped active"><div class="progress-bar progress-bar-info"></div></div>' +
                     '<div class="percentage pull-right"></div>' +
                     '<div class="message">&nbsp;</div>');
 };
@@ -30,7 +30,7 @@ Drupal.progressBar = function (id, updateCallback, method, errorCallback) {
  */
 Drupal.progressBar.prototype.setProgress = function (percentage, message) {
   if (percentage >= 0 && percentage <= 100) {
-    $('div.bar', this.element).css('width', percentage + '%');
+    $('div.progress-bar', this.element).css('width', percentage + '%');
     $('div.percentage', this.element).html(percentage + '%');
   }
   $('div.message', this.element).html(message);
@@ -95,7 +95,7 @@ Drupal.progressBar.prototype.sendPing = function () {
  * Display errors on the page.
  */
 Drupal.progressBar.prototype.displayError = function (string) {
-  var error = $('<div class="alert alert-block alert-error"><a class="close" data-dismiss="alert" href="#">&times;</a><h4>Error message</h4></div>').append(string);
+  var error = $('<div class="alert alert-block alert-error"><button type="button" class="close" data-dismiss="alert">&times;</a><h4>Error message</h4></div>').append(string);
   $(this.element).before(error).hide();
 
   if (this.errorCallback) {

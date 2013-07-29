@@ -2,8 +2,12 @@
 
 /**
  * Implements hook_form_alter().
+ *
+ * @param array &$form
+ * @param array &$form_state
+ * @param string $form_id
  */
-function bootstrap_form_alter(&$form, &$form_state, $form_id) {
+function wl_form_alter(&$form, &$form_state, $form_id) {
   // Id's of forms that should be ignored
   // Make this configurable?
   $form_ids = array(
@@ -21,14 +25,16 @@ function bootstrap_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Implements hook_form_FORM_ID_alter() for search_form().
+ *
+ * @param array &$form
+ * @param array &$form_state
  */
-function bootstrap_form_search_form_alter(&$form, &$form_state) {
+function wl_form_search_form_alter(&$form, &$form_state) {
   $form['#attributes']['class'][] = 'form-search';
   $form['#attributes']['class'][] = 'pull-left';
 
   $form['basic']['keys']['#title'] = '';
   $form['basic']['keys']['#attributes']['class'][] = 'search-query';
-  $form['basic']['keys']['#attributes']['class'][] = 'span2';
   $form['basic']['keys']['#attributes']['placeholder'] = t('Search');
 
   // Hide the default button from display and implement a theme wrapper to add
@@ -43,13 +49,15 @@ function bootstrap_form_search_form_alter(&$form, &$form_state) {
 
 /**
  * Implements hook_form_FORM_ID_alter() for search_block_form().
+ *
+ * @param array &$form
+ * @param array &$form_state
  */
-function bootstrap_form_search_block_form_alter(&$form, &$form_state) {
+function wl_form_search_block_form_alter(&$form, &$form_state) {
   $form['#attributes']['class'][] = 'form-search';
 
   $form['search_block_form']['#title'] = '';
   $form['search_block_form']['#attributes']['class'][] = 'search-query';
-  $form['search_block_form']['#attributes']['class'][] = 'span2';
   $form['search_block_form']['#attributes']['placeholder'] = t('Search');
 
   // Hide the default button from display and implement a theme wrapper to add
@@ -62,10 +70,22 @@ function bootstrap_form_search_block_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Returns HTML for a form element.
+ * Adds a class to form elements
+ *
+ * @param array &$vars
  */
-function bootstrap_form_element(&$variables) {
-  $element = &$variables['element'];
+function wl_preprocess_form_element(&$vars) {
+  var_dump('WTF');
+  $vars['attributes']['class'][] = 'form-control';
+}
+
+/**
+ * Returns HTML for a form element.
+ *
+ * @param array &$vars
+ */
+function wl_form_element(&$vars) {
+  $element = &$vars['element'];
   // This is also used in the installer, pre-database setup.
   $t = get_t();
 
@@ -85,9 +105,8 @@ function bootstrap_form_element(&$variables) {
   // Add bootstrap class
   if (isset($element['#type']) && ($element['#type'] == "radio" || $element['#type'] == "checkbox")){
     $exclude_control = TRUE;
-  }
-  else {
-    $attributes['class'] = array('control-group');
+  } else {
+    $attributes['class'] = array('input-group');
   }
 
   // Check for errors and set correct error class
@@ -116,12 +135,12 @@ function bootstrap_form_element(&$variables) {
   $suffix = isset($element['#field_suffix']) ? ' <span class="field-suffix">' . $element['#field_suffix'] . '</span>' : '';
 
   // Prepare input whitelist - added to ensure ajax functions don't break
-  $whitelist = _bootstrap_element_whitelist();
+  $whitelist = _wl_element_whitelist();
 
   switch ($element['#title_display']) {
     case 'before':
     case 'invisible':
-      $output .= ' ' . theme('form_element_label', $variables);
+      $output .= ' ' . theme('form_element_label', $vars);
       // Check if item exists in element whitelist
       if (isset($element['#id']) && in_array($element['#id'], $whitelist)) {
         $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
@@ -135,8 +154,8 @@ function bootstrap_form_element(&$variables) {
 
     case 'after':
       $output = $exclude_control ? $output : $output.$control_wrapper;
-      $variables['#children'] = ' ' . $prefix . $element['#children'] . $suffix;
-      $output .= ' ' . theme('form_element_label', $variables) . "\n";
+      $vars['#children'] = ' ' . $prefix . $element['#children'] . $suffix;
+      $output .= ' ' . theme('form_element_label', $vars) . "\n";
       break;
 
     case 'none':
@@ -164,8 +183,8 @@ function bootstrap_form_element(&$variables) {
 /**
  * Returns HTML for a form element label and required marker.
  */
-function bootstrap_form_element_label(&$variables) {
-  $element = $variables['element'];
+function wl_form_element_label(&$vars) {
+  $element = $vars['element'];
   // This is also used in the installer, pre-database setup.
   $t = get_t();
 
@@ -200,8 +219,8 @@ function bootstrap_form_element_label(&$variables) {
   }
   // @Bootstrap: Insert radio and checkboxes inside label elements.
   $output = '';
-  if ( isset($variables['#children']) ) {
-    $output .= $variables['#children'];
+  if ( isset($vars['#children']) ) {
+    $output .= $vars['#children'];
   }
 
   // @Bootstrap: Append label
@@ -214,7 +233,7 @@ function bootstrap_form_element_label(&$variables) {
 /**
  * Preprocessor for theme('button').
  */
-function bootstrap_preprocess_button(&$vars) {
+function wl_preprocess_button(&$vars) {
   $vars['element']['#attributes']['class'][] = 'btn';
 
   if (isset($vars['element']['#value'])) {
@@ -255,8 +274,8 @@ function bootstrap_preprocess_button(&$vars) {
 /**
  * Returns HTML for a button form element.
  */
-function bootstrap_button($variables) {
-  $element = $variables['element'];
+function wl_button($vars) {
+  $element = $vars['element'];
   $label = $element['#value'];
   element_set_attributes($element, array('id', 'name', 'value', 'type'));
 
@@ -266,7 +285,7 @@ function bootstrap_button($variables) {
   }
 
   // Prepare input whitelist - added to ensure ajax functions don't break
-  $whitelist = _bootstrap_element_whitelist();
+  $whitelist = _wl_element_whitelist();
 
   if (isset($element['#id']) && in_array($element['#id'], $whitelist)) {
     return '<input' . drupal_attributes($element['#attributes']) . ">\n"; // This line break adds inherent margin between multiple buttons
@@ -279,7 +298,7 @@ function bootstrap_button($variables) {
 /**
  * Returns an array containing ids of any whitelisted drupal elements
  */
-function _bootstrap_element_whitelist() {
+function _wl_element_whitelist() {
 /**
  * Why whitelist an element?
  * The reason is to provide a list of elements we wish to exclude
@@ -296,8 +315,8 @@ function _bootstrap_element_whitelist() {
   );
 }
 
-function bootstrap_bootstrap_append_element(&$variables) {
-  $element = &$variables['element'];
+function wl_bootstrap_append_element(&$vars) {
+  $element = &$vars['element'];
 
   // This is also used in the installer, pre-database setup.
   $t = get_t();
@@ -316,10 +335,11 @@ function bootstrap_bootstrap_append_element(&$variables) {
   $exclude_control = FALSE;
   $control_wrapper = '<div class="controls">';
   // Add bootstrap class
-  if ($element['#type'] == "radio" || $element['#type'] == "checkbox" || isset($element['#exclude_control'])) {
+  if(isset($element['#exclude_control'])) {
     $exclude_control = TRUE;
-  }
-  else {
+  } else if ($element['#type'] == "radio" || $element['#type'] == "checkbox") {
+    $exclude_control = TRUE;
+  } else {
     $attributes['class'] = array('control-group');
   }
 
@@ -341,11 +361,11 @@ function bootstrap_bootstrap_append_element(&$variables) {
 
 
   if (isset($element['#field_prefix'])) {
-    $attributes['class'][] = 'input-prepend';
+    $attributes['class'][] = 'input-group-addon';
   }
 
   if (isset($element['#field_suffix'])) {
-    $attributes['class'][] = 'input-append';
+    $attributes['class'][] = 'input-group-addon';
   }
 
   $attributes['class'][] = 'form-item';
@@ -359,12 +379,12 @@ function bootstrap_bootstrap_append_element(&$variables) {
   $suffix = isset($element['#field_suffix']) ? $element['#field_suffix'] : '';
 
   // Prepare input whitelist - added to ensure ajax functions don't break
-  $whitelist = _bootstrap_element_whitelist();
+  $whitelist = _wl_element_whitelist();
 
   switch ($element['#title_display']) {
     case 'before':
     case 'invisible':
-      $output .= ' ' . theme('form_element_label', $variables);
+      $output .= ' ' . theme('form_element_label', $vars);
       // Check if item exists in element whitelist
       if (isset($element['#id']) && in_array($element['#id'], $whitelist)) {
         $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
@@ -378,8 +398,8 @@ function bootstrap_bootstrap_append_element(&$variables) {
 
     case 'after':
       $output = $exclude_control ? $output : $output.$control_wrapper;
-      $variables['#children'] = ' ' . $prefix . $element['#children'] . $suffix;
-      $output .= ' ' . theme('form_element_label', $variables) . "\n";
+      $vars['#children'] = ' ' . $prefix . $element['#children'] . $suffix;
+      $output .= ' ' . theme('form_element_label', $vars) . "\n";
       break;
 
     case 'none':
