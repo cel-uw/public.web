@@ -4,6 +4,13 @@ core = 7.x
 version = 7.x-1.0
 base theme = wl
 
+; Regions
+regions[navigation]     = 'Navigation'
+regions[header]         = 'Top Bar'
+regions[help]           = 'Help'
+regions[content]        = 'Content'
+regions[footer]         = 'Footer'
+
 ; CSS
 ; Stylesheets
 stylesheets[all][] = css/bootstrap.min.css
