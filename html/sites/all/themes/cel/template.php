@@ -10,6 +10,68 @@ function cel_js_alter(&$js) {
 }
 
 /**
+ * Merge content in the navigation block into the nav itself
+ *
+ * @param array &$vars
+ */
+function cel_preprocess_page(&$vars) {
+  if(empty($vars['primary_nav'])) {
+    $vars['primary_nav'] = array(
+      '#sorted' => true,
+      '#theme_wrappers' => array('menu_tree__primary'),
+    );
+  }
+
+  if(!empty($vars['page']['navigation'])) {
+    // Find the last link
+    // This seems to be the safest, if most inefficient, option
+    $splice_offset = 0;
+    foreach($vars['primary_nav'] as $key=>$link) {
+      $splice_offset++;
+      if(!isset($link['#theme'], $link['#attributes']['class']) || $link['#theme'] != 'menu_link__main_menu') {
+        continue;
+      }
+
+      $last = array_search('last', $link['#attributes']['class'], true);
+      if($last !== false) {
+        unset($vars['primary_nav'][$key]['#attributes']['class'][$last]);
+        break;
+      }
+    }
+
+    // Prep our navigation content
+    $last_key = NULL;
+    foreach($vars['page']['navigation'] as $key=>$value) {
+      if($key[0] === "#") {
+        unset($vars['page']['navigation'][$key]);
+        continue;
+      }
+
+      $last_key = $key;
+    }
+
+    foreach($vars['page']['navigation'] as $key=>$value) {
+      $classes = "leaf";
+      if($key === $last_key) {
+        $classes .= " last";
+      }
+
+      if(empty($vars['page']['navigation'][$key]['#theme'])) {
+        $vars['page']['navigation'][$key]['#theme'] = array();
+      }
+
+      $vars['page']['navigation'][$key]['#theme'][] = 'menu_link__main_menu';
+      $vars['page']['navigation'][$key]['#prefix'] = "<li class=\"{$classes}\">";
+      $vars['page']['navigation'][$key]['#suffix'] = '</li>';
+    }
+
+    // Splice in our navigation content
+    array_splice($vars['primary_nav'], $splice_offset, 0, $vars['page']['navigation']);
+    unset($vars['page']['navigation']);
+  }
+}
+
+/**
  * Add in some CEL-specific vars
  *
  * Implementes hook_preprocess_node()

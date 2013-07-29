@@ -32,6 +32,37 @@ a span.caret
   vertical-align: middle;
 }
 
+fieldset.collapsible legend .fieldset-legend a.fieldset-title
+{
+  text-decoration: none;
+  color: rgb(51, 51, 51);
+}
+
+.hide-text
+{
+  position: absolute;
+  top: -100px;
+  left: -1000000px;
+  text-indent: -1000000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.page-header
+{
+  border-bottom: 0;
+  margin-bottom: 6px;
+}
+
+.form-required
+{
+  color: #b94a48;
+}
+
+/*
+ * Components 
+ */
 html, body
 {
   width: 100%;
@@ -53,8 +84,8 @@ body.toolbar-drawer
 {
   width: 100%;
   margin: 0;
-  padding: 0;
-  height: 146px;
+  padding: 20px 0;
+  height: 45px;
 }
 
 #banner .logo-row h1 a
@@ -62,33 +93,34 @@ body.toolbar-drawer
   display: block;
   width: 100%;
   height: 100%;
-  background: rgb(59,35,123) url(../images/logo.gif) center center no-repeat;
+  background: #fff url(../images/logo.png) center center no-repeat;
 }
 
-.hide-text
+#navbar .navbar-inner
 {
-  position: absolute;
-  top: -100px;
-  left: -1000000px;
-  text-indent: -1000000px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+  background-color: #fff;
+  background-image: none;
+  border: 0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 
-.page-header
+#navbar .nav
 {
-  border-bottom: 0;
-  margin-bottom: 6px;
+  text-align: justify;
+  width: 100%;
 }
 
-fieldset.collapsible legend .fieldset-legend a.fieldset-title
+#navbar .nav>li,
+#navbar #block-search-form
 {
-  text-decoration: none;
-  color: rgb(51, 51, 51);
+  float: none;
+  display: inline-block;
 }
 
-.form-required
+#navbar .nav:after
 {
-  color: #b94a48;
+  content: '';
+  width: 100%;
+  display: inline-block;
 }
