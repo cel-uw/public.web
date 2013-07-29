@@ -164,3 +164,13 @@ function cel_preprocess_media_vimeo_video(&$vars) {
     <iframe id="{$vars['wrapper_id']}_iframe" class="vimeo-player" src="http://player.vimeo.com/video/{$vars['video_id']}?player_id={$vars['wrapper_id']}_iframe&amp;api=1&amp;autoplay={$vars['autoplay']}" width="{$vars['width']}" height="{$vars['height']}" frameborder="0" {$vars['fullscreen_attrs']}></iframe>
 OUTPUT;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter() for search_form().
+ *
+ * @param array &$form
+ * @param array &$form_state
+ */
+function cel_form_search_block_form_alter(&$form, &$form_state) {
+  $form['#attributes']['class'][] = 'navbar-form';
+}

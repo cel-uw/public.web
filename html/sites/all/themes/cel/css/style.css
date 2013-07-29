@@ -105,7 +105,7 @@ body.toolbar-drawer
   box-shadow: none;
 }
 
-#navbar .nav
+/*#navbar .nav
 {
   text-align: justify;
   width: 100%;
@@ -123,4 +123,4 @@ body.toolbar-drawer
   content: '';
   width: 100%;
   display: inline-block;
-}
+}*/
