@@ -29,10 +29,12 @@ settings[cdn_jquery_migrate_version] = 1.2.1
 ; CSS
 stylesheets[all][] = css/bootstrap-glyphicons.css
 stylesheets[all][] = css/overrides.css
+stylesheets[all][] = css/style.css
 
 ; Scripts
 scripts[] = js/spin.js
 scripts[] = js/jquery.fitvids.js
+scripts[] = js/jquery.fix.js
 
 ;Exclude
 ;javascript
@@ -69,3 +71,9 @@ exclude[css][] = 'modules/taxonomy/taxonomy.css'
 exclude[css][] = 'modules/tracker/tracker.css'
 exclude[css][] = 'modules/update/update.css'
 exclude[css][] = 'modules/user/user.css'
+
+;Breakpoints
+breakpoints[mobile] = (min-width: 0px)
+breakpoints[tablet] = (min-width: 768px)
+breakpoints[med-desktop] = (min-width: 992px)
+breakpoints[large-desktop] = (min-width: 1200px)

@@ -17,8 +17,9 @@ hide($content['field_style']);
 
   <div class="carousel-inner">
     <?php if(!empty($content['field_photos']['#items'])): ?>
+      <?php $active = 'active'; ?>
       <?php foreach($content['field_photos']['#items'] as $photo): ?>
-        <div class="item">
+        <div class="item <?php print $active; ?>">
           <?php if(substr($photo['filemime'], 0, 6) === 'video/'): ?>
             <?php $photo_output = field_view_value('node', $node, 'field_photos', $photo, array('type' => 'file_rendered')); ?>
           <?php else: ?>
@@ -26,6 +27,7 @@ hide($content['field_style']);
           <?php endif; ?>
           <?php print render($photo_output); ?>
         </div>
+        <?php $active = ''; ?>
       <?php endforeach; ?>
     <?php endif; ?>
   </div>

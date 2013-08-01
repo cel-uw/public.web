@@ -1,7 +1,7 @@
 <header id="banner" role="banner">
   <div class="container">
     <div class="row logo-row">
-      <div class="span12">
+      <div class="col-lg-12">
         <h1 id="site-name">
           <a href="<?php print $front_page; ?>">
             <span>
@@ -12,38 +12,38 @@
         </h1>
       </div>
     </div>
+  </div>
 
-    <div class="row nav-row">
-      <div id="navbar-wrapper" class="span12">
-        <div id="navbar" role="banner" class="navbar">
-          <div class="container">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
+  <div id="navbar-wrapper">
+    <div id="navbar" role="banner" class="navbar">
+      <div class="container">
+        <div class="col-lg-12">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
 
-            <?php if (!empty($page['navigation'])): ?>
-              <div class="nav-collapse collapse navbar-responsive-collapse">
-                <nav role="navigation">
-                  <?php print render($page['navigation']); ?>
-                </nav>
-              </div>
-            <?php endif; ?>
+          <?php if (!empty($page['navigation'])): ?>
+            <div class="nav-collapse collapse navbar-responsive-collapse">
+              <nav role="navigation">
+                <?php print render($page['navigation']); ?>
+              </nav>
+            </div>
+          <?php endif; ?>
 
-            <?php if (empty($page['navigation'])): ?>
-              <div class="nav-collapse collapse navbar-responsive-collapse">
-                <nav role="navigation">
-                <?php if (!empty($primary_nav)): ?>
-                  <?php print render($primary_nav); ?>
-                <?php endif; ?>
-                <?php if (!empty($secondary_nav)): ?>
-                  <?php print render($secondary_nav); ?>
-                <?php endif; ?>
-                </nav>
-              </div>
-            <?php endif; ?>
-          </div>
+          <?php if (empty($page['navigation'])): ?>
+            <div class="nav-collapse collapse navbar-responsive-collapse">
+              <nav role="navigation">
+              <?php if (!empty($primary_nav)): ?>
+                <?php print render($primary_nav); ?>
+              <?php endif; ?>
+              <?php if (!empty($secondary_nav)): ?>
+                <?php print render($secondary_nav); ?>
+              <?php endif; ?>
+              </nav>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@
   </header> <!-- /#header -->
 
   <div class="row">
-    <section class="span12">  
+    <section class="col-lg-12">  
       <a id="main-content"></a>
       <?php if($wl_show_title): ?>
         <?php print render($title_prefix); ?>
@@ -68,6 +68,7 @@
         <?php endif; ?>
         <?php print render($title_suffix); ?>
       <?php endif; ?>
+
       <?php print $messages; ?>
       <?php if ($tabs): ?>
         <?php print render($tabs); ?>
@@ -78,6 +79,7 @@
       <?php if ($action_links): ?>
         <ul class="action-links"><?php print render($action_links); ?></ul>
       <?php endif; ?>
+
       <?php print render($page['content']); ?>
     </section>
   </div>
@@ -87,7 +89,7 @@
   <div class="shadow"></div>
   <div class="container">
     <div class="row">
-      <div class="span12">
+      <div class="col-lg-12">
         <?php print render($page['footer']); ?>
       </div>
     </div>

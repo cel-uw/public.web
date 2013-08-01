@@ -55,7 +55,7 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
       'name' => 'Muted paragraph',
       'element' => 'p',
       'attributes' => array(
-        'class' => 'muted'
+        'class' => 'text-muted'
       )
     ),
 
@@ -97,46 +97,6 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
     ),
 
     array(
-      'name' => 'Success badge',
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'badge badge-success'
-      )
-    ),
-
-    array(
-      'name' => 'Warning badge',
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'badge badge-warning'
-      )
-    ),
-
-    array(
-      'name' => 'Important badge',
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'badge badge-important'
-      )
-    ),
-
-    array(
-      'name' => 'Info badge',
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'badge badge-info'
-      )
-    ),
-
-    array(
-      'name' => 'Inverse badge',
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'badge badge-inverse'
-      )
-    ),
-
-    array(
       'name' => 'Label',
       'element' => 'span',
       'attributes' => array(
@@ -161,10 +121,10 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
     ),
 
     array(
-      'name' => 'Important label',
+      'name' => 'Danger label',
       'element' => 'span',
       'attributes' => array(
-        'class' => 'label label-important'
+        'class' => 'label label-danger'
       )
     ),
 
@@ -173,14 +133,6 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
       'element' => 'span',
       'attributes' => array(
         'class' => 'label label-info'
-      )
-    ),
-
-    array(
-      'name' => 'Inverse label',
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'label label-inverse'
       )
     ),
 
@@ -233,14 +185,6 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
     ),
 
     array(
-      'name' => 'Inverse button',
-      'element' => 'a',
-      'attributes' => array(
-        'class' => 'btn btn-inverse'
-      )
-    ),
-
-    array(
       'name' => 'Computer code',
       'element' => 'code',
     ),
@@ -259,7 +203,7 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
       'name' => 'Muted text',
       'element' => 'span',
       'attributes' => array(
-        'class' => 'muted'
+        'class' => 'text-muted'
       )
     ),
   );

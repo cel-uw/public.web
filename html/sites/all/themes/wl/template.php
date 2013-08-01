@@ -347,7 +347,7 @@ function wl_bootstrap_search_form_wrapper(&$vars) {
 <div class="input-group">
   {$vars['element']['#children']}
   <span class="input-group-btn">
-    <button type="button" class="btn btn-default">
+    <button type="submit" class="btn btn-default">
       <span class="element-invisible">{$search_text}</span>
       <i class="glyphicon glyphicon-search"></i>
     </button>

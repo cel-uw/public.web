@@ -32,9 +32,11 @@ function wl_form_alter(&$form, &$form_state, $form_id) {
 function wl_form_search_form_alter(&$form, &$form_state) {
   $form['#attributes']['class'][] = 'form-search';
   $form['#attributes']['class'][] = 'pull-left';
+  $form['#attributes']['class'][] = 'col-lg-12';
 
   $form['basic']['keys']['#title'] = '';
   $form['basic']['keys']['#attributes']['class'][] = 'search-query';
+  $form['basic']['keys']['#attributes']['class'][] = 'form-control';
   $form['basic']['keys']['#attributes']['placeholder'] = t('Search');
 
   // Hide the default button from display and implement a theme wrapper to add
@@ -58,6 +60,7 @@ function wl_form_search_block_form_alter(&$form, &$form_state) {
 
   $form['search_block_form']['#title'] = '';
   $form['search_block_form']['#attributes']['class'][] = 'search-query';
+  $form['search_block_form']['#attributes']['class'][] = 'form-control';
   $form['search_block_form']['#attributes']['placeholder'] = t('Search');
 
   // Hide the default button from display and implement a theme wrapper to add
@@ -75,8 +78,7 @@ function wl_form_search_block_form_alter(&$form, &$form_state) {
  * @param array &$vars
  */
 function wl_preprocess_form_element(&$vars) {
-  var_dump('WTF');
-  $vars['attributes']['class'][] = 'form-control';
+  $vars['#attributes']['class'][] = 'form-control';
 }
 
 /**

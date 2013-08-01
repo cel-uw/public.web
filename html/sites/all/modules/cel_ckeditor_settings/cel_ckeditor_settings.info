@@ -1,0 +1,6 @@
+name = CEL CKEditor Settings
+core = 7.x
+package = User interface
+version = 7.x-1.0
+dependencies[] = wysiwyg
+files[] = cel_ckeditor_settings.module

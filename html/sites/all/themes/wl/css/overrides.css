@@ -284,6 +284,11 @@ input.error
   display:block
 }
 
+.container-inline .input-group
+{
+  display:table;
+}
+
 div.error,
 table tr.error
 {
@@ -438,3 +443,8 @@ div.password-suggestions ul
   top:1px
 }
 
+.nav-justified,
+.nav-justified>li
+{
+  float: none!important;
+}

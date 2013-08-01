@@ -111,7 +111,6 @@ function wl_menu_navigation_links($tree, $lvl = 0) {
   return $result;
 }
 
-
 /**
  * Implements theme_bootstrap_progress_bar()
  *

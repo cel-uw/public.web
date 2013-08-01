@@ -1,0 +1,71 @@
+<?php
+/**
+ * Set up better CKEditor input
+ *
+ * Uses hook_wysiwyg_editor_settings_alter()
+ *
+ * @param array &$settings The current settings
+ * @param array $context The current context
+ */
+function cel_ckeditor_settings_wysiwyg_editor_settings_alter(&$settings, $context) {
+
+  // The $context variable contains information about the wysiwyg profile we're using
+  // In this case we need to check that the editor being used is ckeditor and the profile
+  // is title
+  if($context['profile']->editor !== 'ckeditor') {
+    return;
+  }
+
+  switch($context['profile']->format) {
+    case 'title':
+      $settings['bodyClass'] = 'carousel-header';
+      break;
+
+    case 'featured_carousel_paragraph':
+      $settings['bodyClass'] = 'carousel-body';
+      break;
+
+    default:
+      return;
+  }
+
+  $settings['height'] = 80;
+  $settings['enterMode'] = 2; //CKEDITOR.ENTER_BR
+  $settings['forceEnterMode'] = true;
+  $settings['autoParagraph'] = false;
+
+
+  // Set up the bootstrap styles
+  $settings['stylesSet'] = array(
+    array(
+      'name' => 'Gold text',
+      'element' => 'span',
+      'attributes' => array(
+        'class' => 'gold'
+      )
+    ),
+  );
+}
+
+/**
+ * Ensure that hook_wysiwyg_editor_settings_alter() is executed last
+ *
+ * Since other modules also call the above hook (prinicpally wl_ckeditor_plus),
+ * we need to make sure to call our version last, or it may get overwritten
+ *
+ * @param array &$implementations
+ * @param string $hook
+ */
+function cel_ckeditor_settings_module_implements_alter(&$implementations, $hook) {
+  if ($hook != 'wysiwyg_editor_settings_alter') {
+    return;
+  }
+
+  $module = 'cel_ckeditor_settings';
+  // Get a copy of our implementation
+  $implementation = $implementations[$module];
+  // Remove it
+  unset($implementations[$module]);
+  // Append it
+  $implementations[$module] = $implementation;
+}

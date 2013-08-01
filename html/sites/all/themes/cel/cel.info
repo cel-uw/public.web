@@ -18,4 +18,8 @@ stylesheets[all][] = css/style.css
 ; Scripts
 scripts[] = js/froogaloop.min.js
 
-
+;Breakpoints
+breakpoints[mobile] = (min-width: 0px)
+breakpoints[tablet] = (min-width: 768px)
+breakpoints[med-desktop] = (min-width: 992px)
+breakpoints[large-desktop] = (min-width: 1200px)

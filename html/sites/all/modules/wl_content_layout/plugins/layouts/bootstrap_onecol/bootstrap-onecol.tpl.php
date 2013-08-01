@@ -13,7 +13,7 @@
  */
 ?>
 <div class="panel-bootstrap-onecol-stacked panel-display" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
-  <div class="row-fluid panel-col-middle panel-panel">
-    <div class="span12"><?php print $content['middle']; ?></div>
+  <div class="row panel-col-middle panel-panel">
+    <div class="col-lg-12"><?php print $content['middle']; ?></div>
   </div>
 </div>

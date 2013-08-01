@@ -19,26 +19,26 @@
 ?>
 <div class="panel-bootstrap-3col-33-33-33-stacked panel-display" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
   <?php if ($content['top']): ?>
-    <div class="row-fluid panel-col-top panel-panel">
-      <div class="span12"><?php print $content['top']; ?></div>
+    <div class="row panel-col-top panel-panel">
+      <div class="col-lg-12"><?php print $content['top']; ?></div>
     </div>
   <?php endif; ?>
 
-  <div class="row-fluid center-wrapper">
-    <div class="panel-col-first span4 panel-panel">
+  <div class="row center-wrapper">
+    <div class="panel-col-first col-lg-4 panel-panel">
       <?php print $content['left']; ?>
     </div>
-    <div class="panel-col-middle span4 panel-panel">
+    <div class="panel-col-middle col-lg-4 panel-panel">
       <?php print $content['middle']; ?>
     </div>
-    <div class="panel-col-last span4 panel-panel">
+    <div class="panel-col-last col-lg-4 panel-panel">
       <?php print $content['right']; ?>
     </div>
   </div>
 
   <?php if ($content['bottom']): ?>
-    <div class="row-fluid panel-col-bottom panel-panel">
-      <div class="span12"><?php print $content['bottom']; ?></div>
+    <div class="row panel-col-bottom panel-panel">
+      <div class="col-lg-12"><?php print $content['bottom']; ?></div>
     </div>
   <?php endif; ?>
 </div>
