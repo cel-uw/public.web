@@ -65,6 +65,11 @@ body.toolbar-drawer
   padding-top: 65px !important;
 }
 
+img
+{
+  width: 100%;
+}
+
 #banner .logo-row h1
 {
   width: 100%;
@@ -136,11 +141,32 @@ body.toolbar-drawer
 {
   background-color: rgb(59,35,123);
   color: #fff;
-  min-width: 940px;
+  min-width: 100%;
   padding-bottom: 25px;
   background-clip: border-box;
   top: 98%;
   border-top: 0;
+}
+
+@media (min-width: 768px) {
+  .dropdown-menu
+  {
+    min-width: 698px;
+  }
+}
+
+@media (min-width: 992px) {
+  .dropdown-menu
+  {
+    min-width: 910px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dropdown-menu
+  {
+    min-width: 940px;
+  }
 }
 
 .dropdown-menu li a,

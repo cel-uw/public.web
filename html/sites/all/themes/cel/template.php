@@ -272,3 +272,15 @@ EOL;
 
   drupal_set_message(t('An error occurred when loading the menu.'));
 }
+
+/**
+ * Remove the height attribute from pictures and set width to 100% to support scaling on small devices
+ *
+ * Implements hook_preprocess_theme()
+ * Preprocesses theme_picture_source()
+ *
+ * @param array &$variables
+ */
+function cel_preprocess_picture_source(&$variables) {
+  $variables['dimensions'] = array('width' => '100%');
+}

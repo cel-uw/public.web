@@ -15,7 +15,7 @@
   <?php if(count($rows) > 1 && count($rows) < 8): ?>
     <ol class="carousel-indicators">
       <?php $i=0; ?>
-      <?php $class='class="class"' ?>
+      <?php $class='class="active"' ?>
       <?php foreach($rows as $id => $row): ?>
         <li data-target="#featured_content" data-slide-to="<?php print $i; ?>" <?php print $class; ?>></li>
         <?php $i++; ?>
