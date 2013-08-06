@@ -25,11 +25,11 @@
   <?php endif; ?>
 
   <div class="row center-wrapper">
-    <div class="panel-col-first col-lg-4 panel-panel">
-      <?php print $content['left']; ?>
-    </div>
-    <div class="panel-col-middle col-lg-4 panel-panel">
+    <div class="panel-col-middle col-lg-4 col-lg-push-4 panel-panel">
       <?php print $content['middle']; ?>
+    </div>
+    <div class="panel-col-first col-lg-4 col-lg-pull-4 panel-panel">
+      <?php print $content['left']; ?>
     </div>
     <div class="panel-col-last col-lg-4 panel-panel">
       <?php print $content['right']; ?>

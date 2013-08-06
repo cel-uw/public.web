@@ -201,6 +201,52 @@ function cel_menu_tree__footer(&$vars) {
 }
 
 /**
+ * Renders the HTML for side menus
+ *
+ * @param array $vars
+ * @return string The HTML to render
+ */
+function cel_menu_link__menu_block__main_menu($vars) {
+  $element = $vars['element'];
+  $sub_menu = '';
+
+  // Issue #1896674 - On primary navigation menu, class 'active' is not set on active menu item.
+  // @see http://drupal.org/node/1896674
+  if (($element['#href'] == $_GET['q'] || ($element['#href'] == '<front>' && drupal_is_front_page())) && 
+      (empty($element['#localized_options']['language']) || $element['#localized_options']['language']->language == $language_url->language)) 
+  {
+    $element['#attributes']['class'][] = 'active';
+  }
+
+  if(empty($element['#original_link']['depth'])) {
+    // Prevent dropdown functions from being added to management menu as to not affect navbar module.
+    if ($element['#below'] && $element['#original_link']['menu_name'] == 'management' && module_exists('navbar')) {
+      $sub_menu = drupal_render($element['#below']);
+    }
+
+    $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+    return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+  }
+
+  if($element['#below']) {
+    // Add our own wrapper
+    unset($element['#below']['#theme_wrappers']);
+    $sub_links = drupal_render($element['#below']);
+    $sub_menu = <<<EOL
+<ul class="nav">
+  {$sub_links}
+</ul>
+EOL;
+  }
+
+  $element['#localized_options']['html'] = TRUE;
+  $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+  return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+
+  drupal_set_message(t('An error occurred when loading the menu.'));
+}
+
+/**
  * Returns HTML for the main menu links
  *
  * @param array $vars

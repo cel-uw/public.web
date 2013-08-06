@@ -39,24 +39,28 @@
 
 <div class="container" id="main-container">
   <header role="banner" id="page-header">
-    <?php print render($page['header']); ?>
+    <div class="row">
+      <div class="col-lg-12">
+        <a id="main-content"></a>
+        <?php if($wl_show_title): ?>
+          <?php print render($title_prefix); ?>
+          <?php if ($title): ?>
+            <h1 class="page-header">
+              <?php print $title; ?><?php if($wl_add_colon_to_title): print ":"; endif; ?>
+              <?php print $wl_subtitle ?>
+            </h1>
+          <?php endif; ?>
+          <?php print render($title_suffix); ?>
+        <?php endif; ?>
+        <?php print $breadcrumb; ?>
+        <?php print $messages; ?>
+        <?php print render($page['header']); ?>
+      </div>
+    </div>
   </header> <!-- /#header -->
 
   <div class="row">
     <section class="col-lg-12">  
-      <a id="main-content"></a>
-      <?php if($wl_show_title): ?>
-        <?php print render($title_prefix); ?>
-        <?php if ($title): ?>
-          <h1 class="page-header">
-            <?php print $title; ?><?php if($wl_add_colon_to_title): print ":"; endif; ?>
-            <?php print $wl_subtitle ?>
-          </h1>
-        <?php endif; ?>
-        <?php print render($title_suffix); ?>
-      <?php endif; ?>
-
-      <?php print $messages; ?>
       <?php if ($tabs): ?>
         <?php print render($tabs); ?>
       <?php endif; ?>
@@ -74,7 +78,7 @@
 <footer id="footer">
   <div class="container">
     <div class="row social-media-row">
-      <div class="col-lg-2 col-lg-offset-5 col-offset-5">
+      <div class="col-lg-2 col-lg-offset-5">
         <?php print render($page['social-media']); ?>
       </div>
     </div>
