@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Default simple view template to display a list of rows.
+ * Displays a lsit of items as a carousel
  *
  * @ingroup views_templates
  */

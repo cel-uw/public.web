@@ -22,6 +22,13 @@ function cel_preprocess_page(&$vars) {
     );
   }
 
+  // Primary nav
+  $vars['footer_nav'] = FALSE;
+  // Build links
+  $vars['footer_nav'] = menu_tree('menu-footer-menu');
+  // Provide default theme wrapper function
+  $vars['footer_nav']['#theme_wrappers'] = array('menu_tree__footer');
+
   if(!empty($vars['page']['navigation'])) {
     // Find the last link
     // This seems to be the safest, if most inefficient, option
@@ -185,12 +192,21 @@ function cel_menu_tree__primary(&$vars) {
 }
 
 /**
- * Returns HTML for a menu link
+ * Bootstrap theme wrapper function for the primary menu links
+ *
+ * @param array &$vars
+ */
+function cel_menu_tree__footer(&$vars) {
+  return '<div class="row footer-menu">' . $vars['tree'] . '</div>';
+}
+
+/**
+ * Returns HTML for the main menu links
  *
  * @param array $vars
  * @return string HTML output
  */
-function cel_menu_link($vars) {
+function cel_menu_link__main_menu($vars) {
   $element = $vars['element'];
   $sub_menu = '';
 
@@ -249,12 +265,12 @@ EOL;
       if($element['#below']) {
         // Add our own wrapper
         unset($element['#below']['#theme_wrappers']);
-        $sub_menu = '<ul class="nav nav-stacked">' . drupal_render($element['#below']) . '</ul>';
+        $sub_menu = '<ul class="nav">' . drupal_render($element['#below']) . '</ul>';
       }
 
       $element['#localized_options']['html'] = TRUE;
       $output = l($element['#title'], $element['#href'], $element['#localized_options']);
-      return '<ul class="nav nav-stacked col-lg-4"><li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li></ul>\n";
+      return '<ul class="nav col-lg-4"><li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li></ul>\n";
       break;
 
     default:
@@ -262,9 +278,64 @@ EOL;
       if($element['#below']) {
         // Add our own wrapper
         unset($element['#below']['#theme_wrappers']);
-        $sub_menu = '<ul class="nav nav-stacked">' . drupal_render($element['#below']) . '</ul>';
+        $sub_menu = '<ul class="nav">' . drupal_render($element['#below']) . '</ul>';
       }
 
+      $element['#localized_options']['html'] = TRUE;
+      $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+      return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+  }
+
+  drupal_set_message(t('An error occurred when loading the menu.'));
+}
+
+/**
+ * Returns HTML for the footer links
+ *
+ * @param array $vars
+ * @return string HTML output
+ */
+function cel_menu_link__menu_footer_menu($vars) {
+  $element = $vars['element'];
+  $sub_menu = '';
+
+  // Issue #1896674 - On primary navigation menu, class 'active' is not set on active menu item.
+  // @see http://drupal.org/node/1896674
+  if (($element['#href'] == $_GET['q'] || ($element['#href'] == '<front>' && drupal_is_front_page())) && 
+      (empty($element['#localized_options']['language']) || $element['#localized_options']['language']->language == $language_url->language)) 
+  {
+    $element['#attributes']['class'][] = 'active';
+  }
+
+  if(empty($element['#original_link']['depth'])) {
+    // Prevent dropdown functions from being added to management menu as to not affect navbar module.
+    if ($element['#below'] && $element['#original_link']['menu_name'] == 'management' && module_exists('navbar')) {
+      $sub_menu = drupal_render($element['#below']);
+    }
+
+    $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+    return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+  }
+
+  if($element['#below']) {
+    // Add our own wrapper
+    unset($element['#below']['#theme_wrappers']);
+    $sub_links = drupal_render($element['#below']);
+    $sub_menu = <<<EOL
+<ul class="nav">
+  {$sub_links}
+</ul>
+EOL;
+  }
+
+  switch($element['#original_link']['depth']) {
+    case 1:
+      // Top level
+      $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+      return '<div class="footer-menu-item"><h3' . drupal_attributes($element['#attributes']) . '>' . $output . '</h3>' . $sub_menu . "</div>\n";
+      break;
+
+    default:
       $element['#localized_options']['html'] = TRUE;
       $output = l($element['#title'], $element['#href'], $element['#localized_options']);
       return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
@@ -279,8 +350,8 @@ EOL;
  * Implements hook_preprocess_theme()
  * Preprocesses theme_picture_source()
  *
- * @param array &$variables
+ * @param array &$vars
  */
-function cel_preprocess_picture_source(&$variables) {
-  $variables['dimensions'] = array('width' => '100%');
+function cel_preprocess_picture_source(&$vars) {
+  $vars['dimensions'] = array('width' => '100%');
 }

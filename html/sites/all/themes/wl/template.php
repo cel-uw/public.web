@@ -173,6 +173,8 @@ function wl_preprocess_node(&$vars) {
   $node = node_load($vars['nid']);
 
   $vars = _wl_basic_preprocess_vars($node, $vars);
+  // Add in the ability to define teasers separately
+  $vars['theme_hook_suggestions'][] = 'node__' . $vars['type'] . '__' . $vars['view_mode'];
 }
 
 /**
@@ -356,3 +358,4 @@ function wl_bootstrap_search_form_wrapper(&$vars) {
 EOL;
   return $output;
 }
+

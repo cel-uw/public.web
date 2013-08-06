@@ -140,7 +140,7 @@ function wl_ckeditor_plus_wysiwyg_editor_settings_alter(&$settings, $context) {
       'name' => 'Button',
       'element' => 'a',
       'attributes' => array(
-        'class' => 'btn'
+        'class' => 'btn btn-default'
       )
     ),
 

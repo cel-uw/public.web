@@ -530,6 +530,16 @@ function wl_preprocess_table(&$vars) {
   $vars['attributes']['class'][] = 'table';
   if(!in_array('table-no-striping', $vars['attributes']['class'])) {
     $vars['attributes']['class'][] = 'table-striped';
+  } 
+}
+
+/**
+ * Add the Bootstrap class to render inline links properly
+ *
+ * @param array &$vars
+ */
+function wl_preprocess_links(&$vars) {
+  if(!empty($vars['attributes']['class']) && in_array('inline', $vars['attributes']['class'])) {
+    $vars['attributes']['class'][] = 'list-inline';
   }
-  
 }

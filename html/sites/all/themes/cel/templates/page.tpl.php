@@ -29,9 +29,6 @@
             <?php if (!empty($primary_nav)): ?>
               <?php print render($primary_nav); ?>
             <?php endif; ?>
-            <?php if(!empty($page['navigation'])): ?>
-              <?php print render($page['navigation']); ?>
-            <?php endif; ?>
             </nav>
           </div>
         </div>
@@ -75,11 +72,20 @@
 </div>
 
 <footer id="footer">
-  <div class="shadow"></div>
   <div class="container">
+    <div class="row social-media-row">
+      <div class="col-lg-2 col-lg-offset-5 col-offset-5">
+        <?php print render($page['social-media']); ?>
+      </div>
+    </div>
     <div class="row">
       <div class="col-lg-12">
         <?php print render($page['footer']); ?>
+        <nav role="navigation">
+          <?php if (!empty($footer_nav)): ?>
+            <?php print render($footer_nav); ?>
+          <?php endif; ?>
+        </nav>
       </div>
     </div>
   </div>

@@ -185,6 +185,11 @@ ul.action-links [class*=" icon-"]
   padding-right:.5em
 }
 
+.list-inline li.first
+{
+  padding-left: 0;
+}
+
 input,textarea,select,.uneditable-input
 {
   max-width:100%;width:auto
@@ -241,7 +246,6 @@ input.error
 {
   color:#999;
   font-size:12px;
-  margin:-8px 0 10px;
   padding:0 3px
 }
 

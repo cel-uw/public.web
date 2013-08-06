@@ -41,16 +41,40 @@ function cel_admin_form_node_form_alter(&$form, &$form_state, $form_id) {
     }
   }
 
+  // Move the Promoted to front page checkbox to the Promote field
   array_unshift($form['#groups']['group_promote']->children, 'promote');
   array_unshift($form['#fieldgroups']['group_promote']->children, 'promote');
   $form['#group_children']['promote'] = 'group_promote';
   $form['promote'] = $form['options']['promote'];
   unset($form['options']['promote']);
-
   $form['promote']['#weight'] = $form['field_promotional_image']['#weight']-1;
 
   // Add some conditional validation
   $form['#validate'][] = 'cel_admin_node_form_validate';
+}
+
+/**
+ * Rearrange some options on the news/events node add/edit page
+ *
+ * We place the "Sticky" checkbox in with the other
+ * promotion-releated fields.
+ *
+ * Implements hook_form_FORM_ID_alter()
+ *
+ * @param array &$form The form array
+ * @param array &$form_state The form state array
+ * @param string $form_id The ID of the form
+ */
+function cel_admin_form_news_event_item_node_form_alter(&$form, &$form_state, $form_id) {
+  // Move the sticky checkbox to the Promote field
+  array_unshift($form['#groups']['group_promote']->children, 'sticky');
+  array_unshift($form['#fieldgroups']['group_promote']->children, 'sticky');
+  $form['#group_children']['sticky'] = 'group_promote';
+  $form['sticky'] = $form['options']['sticky'];
+  unset($form['options']['sticky']);
+  $form['sticky']['#weight'] = $form['field_promotional_image']['#weight']-2;
+  $form['sticky']['#title'] = t('Sticky');
+  $form['sticky']['#description'] = t('Keep this news item at the top of featured news sections.');
 }
 
 /**

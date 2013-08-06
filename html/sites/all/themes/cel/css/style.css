@@ -1,6 +1,13 @@
 /**
  * Typography
  */
+body,
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6
+{
+  font-family: Verdana, sans-serif;
+}
+
 a
 {
   text-decoration: underline;
@@ -45,6 +52,17 @@ fieldset.collapsible legend .fieldset-legend a.fieldset-title
   color: rgb(230,176,15);
 }
 
+.event-date dt
+{
+  width: 60px;
+  text-align: left;
+}
+
+.event-date dd
+{
+  margin-left: 70px;
+}
+
 /*
  * Components 
  */
@@ -52,7 +70,7 @@ html, body
 {
   width: 100%;
   padding-top: 0;
-  padding-bottom: 20px;
+  padding-bottom: 0;
 }
 
 body.toolbar
@@ -68,6 +86,11 @@ body.toolbar-drawer
 img
 {
   width: 100%;
+}
+
+.row
+{
+  padding-bottom: 15px;
 }
 
 #banner .logo-row h1
@@ -203,18 +226,20 @@ img
 .dropdown-menu li .nav .nav
 {
   margin-left: 15px;
-  border-left: 2px solid rgb(138,159,199);
 }
 
-.dropdown-menu li .nav .nav>li>a
+.dropdown-menu li .nav .nav > li > a
 {
-  padding: 0 0 0 10px;
+  padding: 3px 0 3px 10px;
+  border-left: 1px solid rgb(138,159,199);
+  font-size: 12px;
+  letter-spacing: 1px;
 }
 
-.btn-default
+.dropdown-menu li .nav .nav > li > a:hover,
+.dropdown-menu li .nav .nav > li > a:focus
 {
-  background-color: rgb(230,176,15);
-  border-color: rgb(230,176,15);
+  border-left: 1px solid rgb(230,176,15);
 }
 
 .carousel-caption
@@ -270,10 +295,145 @@ img
   top: 18px;
 }
 
-/*
+.node-readmore > a:after
+{
+  content: " »"; 
+}
+
+@media (min-width: 992px) {
+  ol.recent-news .col-lg-12
+  {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.btn-default
+{
+  background-color: rgb(230,176,15);
+  border-color: rgb(230,176,15);
+}
+
+.addtoany_list > .addtoany_share_save
+{
+  display: inline-block;
+  padding: 8px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.428571429;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  background-color: rgb(230,176,15);
+  border-color: rgb(230,176,15);
+  color: #fff;
+  text-decoration: none;
+}
+
+#footer
+{
+  padding: 15px 0;
+  background-color: rgb(59,35,123);
+  color: #fff;
+}
+
+.footer-menu
+{
+  color: #fff;
+  text-align: justify;
+}
+
+.footer-menu:after
+{
+  content: "";
+  display: inline-block;
+  width: 100%;
+}
+
+.footer-menu-item
+{
+  display: inline-block;
+  vertical-align: top;
+}
+
+.footer-menu a 
+{
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.footer-menu a:hover,
+.footer-menu a:focus
+{
+  text-decoration: underline;
+}
+
+.footer-menu h3 a
+{
+  letter-spacing: 1px;
+  font-size: 16px;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  font-weight: bold;
+}
+
+.footer-menu .nav > li > a
+{
+  padding: 5px 15px 5px 0px;
+}
+
+.footer-menu .nav > li > a:hover, 
+.footer-menu .nav > li > a:focus 
+{
+  text-decoration: underline;
+  background-color: transparent;
+}
+
+.footer-menu .nav .nav 
+{
+  margin-left: 0px;
+}
+
+.footer-menu .nav .nav > li > a 
+{
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 10px;
+  border-left: 1px solid rgb(59,35,123);
+}
+
+.footer-menu .nav .nav > li > a:hover,
+.footer-menu .nav .nav > li > a:focus
+{
+  border-left: 1px solid rgb(230,176,15);
+}
+
+/**
  * Front page
  */
 .front .pane-featured-content
 {
   border-bottom: 20px solid rgb(230,176,15);
 }
+
+.front h2
+{
+  margin-top: 0;
+}
+
+.front .center-wrapper h3
+{
+  margin-top: 8px;
+  color: #999;
+}
+

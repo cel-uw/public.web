@@ -3,10 +3,10 @@
     <header>
       <?php print render($title_prefix); ?>
       <?php if (!$page && $title): ?>
-        <h2<?php print $title_attributes; ?>>
+        <h3<?php print $title_attributes; ?>>
           <?php print $title; ?><?php if($wl_add_colon_to_title): print ":"; endif; ?>
           <?php print $wl_subtitle ?>
-        </h2>
+        </h3>
       <?php endif; ?>
       <?php print render($title_suffix); ?>
 
