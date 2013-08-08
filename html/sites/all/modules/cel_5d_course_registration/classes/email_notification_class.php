@@ -18,10 +18,11 @@ class EmailNotificationClass {
 	 * Setting up default values needed for new object initialization
 	 * @param int $module_nid
 	 */
-	public function __construct(int $module_nid)
+	public function __construct($module_nid)
 	{
 		// validate node id
-		if(!$module_nid){
+		$module_nid = (int) $module_nid;
+		if(empty($module_nid)) {
 			return FALSE;
 		}
 		

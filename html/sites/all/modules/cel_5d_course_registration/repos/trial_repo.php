@@ -373,8 +373,10 @@ return user_save($user, $user_info);
 	 * @param int $days
 	 * @return array
 	 */
-	public function getTrialsRegisteredDaysAgoByDays(int $days){
+	public function getTrialsRegisteredDaysAgoByDays($days){
 		
+		$days = (int) $days;
+
 		if(empty($days)){
 			$days = 0;
 		}
@@ -427,8 +429,9 @@ return user_save($user, $user_info);
 	
 	
 	
-	public function getTrialUserIDsExpireBeforeDaysByDays(int $days)
+	public function getTrialUserIDsExpireBeforeDaysByDays($days)
 	{
+		$days = (int) $days;
 		if(empty($days)){
 			$days = 0;
 		}

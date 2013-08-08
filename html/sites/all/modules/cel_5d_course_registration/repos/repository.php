@@ -19,8 +19,9 @@ class Repository {
 		$sql = db_query($sql, $patterns);
 		
 		$records = array();
-		while ($resObj = db_fetch_object($sql)) {
-			$records[] = $resObj;
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$records[] = $result->fetchObject();
 		}
 		
 		return $records;
@@ -32,8 +33,9 @@ class Repository {
 		$sql = db_query($sql, $patterns);
 	
 		$records = array();
-		while ($res = db_fetch_array($sql)) {
-			$records[] = $res;
+		$results = db_query($sql);
+		foreach($results as $result) {
+			$records[] = $result->fetchAssoc();
 		}
 	
 		return $records;
@@ -66,8 +68,8 @@ class Repository {
 	 */
 	function dbGetVar($col_name, $sql, $patterns=array())
 	{
-		$sql = db_query($sql, $patterns);
-		$record_row = db_fetch_array($sql);
+		$result = db_query($sql, $patterns);
+		$record_row = $result->fetchAssoc();
 		return array_get($record_row, $col_name);
 	}
 	
