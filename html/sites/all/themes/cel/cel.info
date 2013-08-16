@@ -23,6 +23,7 @@ stylesheets[all][] = css/style.css
 ; Scripts
 ; scripts[] = js/bootstrap.js
 scripts[] = js/froogaloop.min.js
+scripts[] = js/URI.js
 scripts[] = js/xregexp-min.js
 scripts[] = js/unicode-base.js
 scripts[] = js/jquery-jvectormap-1.2.2.min.js

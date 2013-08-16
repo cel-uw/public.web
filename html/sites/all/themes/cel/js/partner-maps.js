@@ -7,15 +7,23 @@
 window.cel = window.cel || {};
 window.cel.maps = (function($) {
 
+  /**
+   * @var object maps Rendered maps
+   */
   var maps = {}
+  /**
+   * @var object loaded_map_types Map types that have been already requested
+   */
       loaded_map_types = {},
+  /**
+   * @var array levels An array of objects representing the possible mapping levels
+   */
       levels = [ 
         { name: 'country', validator: /^[A-Z]{2}$/ }, 
         { name: 'province', validator: /^[A-Z0-9 \_\.]+$/i },
         { name: 'county', validator: XRegExp('^\\p{L}+$') }
       ]
 
-  // Public methods
   /**
    * Creates a map or returns an existing map
    *
@@ -59,7 +67,7 @@ window.cel.maps = (function($) {
 
     // Determine which map to use
     maps[key].map_types = _get_map_types(key);
-    _load_map_file(maps[key].map_types, function(map_type, level_index) {
+    _load_best_map_file(maps[key].map_types, function(map_type, level_index) {
       maps[key].level_index = level_index;
       if(map_type) {
         maps[key].map = _load_map(key, container, map_type);
@@ -70,12 +78,18 @@ window.cel.maps = (function($) {
   /**
    * Loads the best available map
    *
+   * Loops through map_types until it can find an available map file
+   *
+   * The callback function is called either when a map file has finished loading, or when no map file could be loaded.
+   * It will be passed two parameters, the full name of the map type (with projection and language included), and 
+   * the level_index, which corresponds to and index of @var levels.
+   *
    * @param string map_type The type of map to try loading
    * @param function callback The callback function that should be called when a map is loaded or none is found
    * @param int level_index Used internally
-   * @return string|bool The fully-qualified map type name, or false if it couldn't load the map file
+   * @return string|bool The fully-qualified map type name, or false if it couldn't load any map files
    */
-  _load_map_file = function(map_types, callback, level_index) {
+  _load_best_map_file = function(map_types, callback, level_index) {
     var format = 'mill',
         lang = 'en',
         level_index = level_index || map_types.length-1,
@@ -108,6 +122,7 @@ window.cel.maps = (function($) {
     .fail(function(jqxhr, settings, exception) {
       // No file to be found :(
       loaded_map_types[full_map_type] = false;
+
       // Try loading another one...
       if(map_types.length) {
         // Sometimes a country map will have regions, but not states, so let's try that
@@ -116,8 +131,9 @@ window.cel.maps = (function($) {
         } else {
           level_index--;
         }
-        _load_map_file(map_types, callback, level_index);
+        _load_best_map_file(map_types, callback, level_index);
       } else {
+        // ...We're out of map types to try
         callback.call(that, false, level_index);
       }
     });
@@ -132,7 +148,8 @@ window.cel.maps = (function($) {
    * @return jvm.WorldMap The rendered map object
    */
   _load_map = function(key, container, map_type) {
-    // Get data
+
+    // The click handler to use when clicking on regions or pins
     var click_handler = function(event, code) {
       if(!maps[key]) {
         return;
@@ -144,23 +161,22 @@ window.cel.maps = (function($) {
         map_types.push(code + '_regions');
       }
 
-      _load_map_file(map_types, function(map_type, level_index) {
+      _load_best_map_file(map_types, function(map_type, level_index) {
         if(map_type) {
-          var href = window.location.href;
-
-          if(href.substr(href.length-1) !== "/") {
-            href = href + "/";
-          }
+          var uri = URI(window.location.href),
+              segments = uri.segmentCoded();
 
           var new_filter = code.split("-");
           new_filter.splice(0, maps[key].current_filters.length);
           new_filter.join("-");
+          segments.push(new_filter);
 
-          window.location.href = href + new_filter;
+          window.location.href = uri.segmentCoded(segments);
         }
       });
     }
 
+    // Options
     var map_options = {
       backgroundColor: 'transparent',
       map: map_type,
@@ -178,6 +194,10 @@ window.cel.maps = (function($) {
           stroke: '#383f47'
         }
       },
+      onMarkerLabelShow: function(event, label, code) {
+        // Fix bug where HTML entities are rendered as plain text
+        label.html(label.text());
+      },
       // Show any partners in this region
       onRegionLabelShow: function(event, label, code) {
         var partners = '';
@@ -188,7 +208,7 @@ window.cel.maps = (function($) {
         }
         label.html(
           '<div class="inner">' +
-            '<h5>' + label.html() + '</h5>' +
+            '<h5>' + label.text() + '</h5>' +
             partners + 
           '</div>'
         );
@@ -203,7 +223,7 @@ window.cel.maps = (function($) {
 
     var map = new jvm.WorldMap(map_options);
 
-    // Build a list of pin titles and 
+    // Build a list of pin titles and highlight regions they are in
     var data = {},
         i;
     for(i in map.regions) {
@@ -296,6 +316,12 @@ window.cel.maps = (function($) {
     }
   }
 
+  /**
+   * Gets the filters associated with the loaded Drupal View
+   *
+   * @param string key The key identifying a map
+   * @return array Filters in use
+   */
   _get_view_filters = function(key) {
     Drupal.settings.views = Drupal.settings.views || {};
     Drupal.settings.views.ajaxViews = Drupal.settings.views.ajaxViews || {};
@@ -310,6 +336,13 @@ window.cel.maps = (function($) {
     return Drupal.settings.views.ajaxViews['views_dom_id:' + key].view_args.split("/") || [];
   }
 
+  /**
+   * Get appropriate possible map types given certain filters
+   *
+   * @param string key The key identifying a map
+   * @param array filters Filters to use. If falsey, the current view filters will be used.
+   * @return array
+   */
   _get_map_types = function(key, filters) {
     filters = filters || _get_view_filters(key);
 
@@ -330,6 +363,7 @@ window.cel.maps = (function($) {
     return map_types;
   }
 
+  // Public functions
   return {
     'create': create
   }

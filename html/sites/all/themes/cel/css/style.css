@@ -552,6 +552,12 @@ fieldset[disabled] .btn-primary.active {
   height: auto;
 }
 
+.jvectormap-container path,
+.jvectormap-container circle
+{
+  cursor: pointer;
+}
+
 /**
  * Front page
  */

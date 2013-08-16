@@ -1,7 +1,7 @@
 <header id="banner" role="banner">
   <div class="container">
     <div class="row logo-row">
-      <div class="col-lg-12">
+      <div class="col-sm-12">
         <h1 id="site-name">
           <a href="<?php print $front_page; ?>">
             <span class="hide-text">
@@ -17,7 +17,7 @@
   <div id="navbar-wrapper">
     <div id="navbar" role="banner" class="navbar">
       <div class="container">
-        <div class="col-lg-12">
+        <div class="col-sm-12">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -40,7 +40,7 @@
 <div class="container" id="main-container">
   <header role="banner" id="page-header">
     <div class="row">
-      <div class="col-lg-12">
+      <div class="col-sm-12">
         <a id="main-content"></a>
         <?php if($wl_show_title): ?>
           <?php print render($title_prefix); ?>
@@ -60,7 +60,7 @@
   </header> <!-- /#header -->
 
   <div class="row">
-    <section class="col-lg-12">  
+    <section class="col-sm-12">  
       <?php if ($tabs): ?>
         <?php print render($tabs); ?>
       <?php endif; ?>
@@ -78,12 +78,12 @@
 <footer id="footer">
   <div class="container">
     <div class="row social-media-row">
-      <div class="col-lg-2 col-lg-offset-5">
+      <div class="col-sm-2 col-sm-offset-5">
         <?php print render($page['social-media']); ?>
       </div>
     </div>
     <div class="row">
-      <div class="col-lg-12">
+      <div class="col-sm-12">
         <?php print render($page['footer']); ?>
         <nav role="navigation">
           <?php if (!empty($footer_nav)): ?>
