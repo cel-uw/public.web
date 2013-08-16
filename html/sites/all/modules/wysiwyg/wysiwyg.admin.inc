@@ -58,7 +58,6 @@ function wysiwyg_profile_form($form, &$form_state, $profile) {
     '#title' => t('Basic setup'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#group' => 'advanced',
   );
 
   $form['basic']['default'] = array(
@@ -114,7 +113,8 @@ function wysiwyg_profile_form($form, &$form_state, $profile) {
   $form['buttons'] = array(
     '#type' => 'fieldset',
     '#title' => t('Buttons and plugins'),
-    '#collapsible' => FALSE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
     '#tree' => TRUE,
     '#theme' => 'wysiwyg_admin_button_table',
   );
@@ -161,7 +161,6 @@ function wysiwyg_profile_form($form, &$form_state, $profile) {
     '#title' => t('Editor appearance'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#group' => 'advanced',
   );
 
   $form['appearance']['toolbar_loc'] = array(
@@ -201,7 +200,6 @@ function wysiwyg_profile_form($form, &$form_state, $profile) {
     '#title' => t('Cleanup and output'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#group' => 'advanced',
   );
 
   $form['output']['verify_html'] = array(
@@ -257,7 +255,6 @@ function wysiwyg_profile_form($form, &$form_state, $profile) {
     '#title' => t('CSS'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#group' => 'advanced',
   );
 
   $form['css']['block_formats'] = array(
@@ -293,20 +290,14 @@ function wysiwyg_profile_form($form, &$form_state, $profile) {
     '#description' => t('Optionally define CSS classes for the "Font style" dropdown list.<br />Enter one class on each line in the format: !format. Example: !example<br />If left blank, CSS classes are automatically imported from all loaded stylesheet(s).', array('!format' => '<code>[title]=[class]</code>', '!example' => 'My heading=header1')),
   );
 
-  $form['advanced'] = array(
-    '#type' => 'vertical_tabs',
-    '#weight' => 50,
-  );
-
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array(
+  $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
+    '#weight' => 100,
   );
-  $form['actions']['cancel'] = array(
-    '#type' => 'link',
-    '#title' => t('Cancel'),
-    '#href' => 'admin/config/content/wysiwyg',
+  $form['cancel'] = array(
+    '#value' => l(t('Cancel'), 'admin/config/content/wysiwyg'),
+    '#weight' => 110,
   );
 
   // Supply contextual information for other callbacks and handlers.
@@ -408,14 +399,6 @@ function wysiwyg_profile_overview($form, &$form_state) {
 
   // Check which wysiwyg editors are installed.
   $editors = wysiwyg_get_all_editors();
-
-  // Sort editors by installed first, then by title.
-  foreach ($editors as $key => $row) {
-    $installed[$key] = $row['installed'];
-    $title[$key] = drupal_strtolower($row['title']);
-  }
-  array_multisort($installed, SORT_DESC, $title, SORT_ASC, $editors);
-
   $count = count($editors);
   $status = array();
   $options = array('' => t('No editor'));
@@ -507,8 +490,6 @@ function wysiwyg_profile_overview($form, &$form_state) {
     }
     else {
       $form['formats'][$id]['editor'] = array(
-        '#title' => t('Select an editor'),
-        '#title_display' => 'invisible',
         '#type' => 'select',
         '#default_value' => '',
         '#options' => $options,

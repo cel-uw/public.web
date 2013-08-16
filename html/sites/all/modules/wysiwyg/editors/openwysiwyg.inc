@@ -100,8 +100,7 @@ function wysiwyg_openwysiwyg_settings($editor, $config, $theme) {
 
   if (isset($config['css_setting'])) {
     if ($config['css_setting'] == 'theme') {
-      $css = wysiwyg_get_css();
-      $settings['CSSFile'] = reset($css);
+      $settings['CSSFile'] = reset(wysiwyg_get_css());
     }
     elseif ($config['css_setting'] == 'self' && isset($config['css_path'])) {
       $settings['CSSFile'] = strtr($config['css_path'], array('%b' => base_path(), '%t' => drupal_get_path('theme', variable_get('theme_default', NULL))));
