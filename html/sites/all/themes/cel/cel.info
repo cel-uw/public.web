@@ -14,10 +14,20 @@ regions[footer]         = 'Footer'
 
 ; CSS
 ; Stylesheets
+; stylesheets[all][] = css/bootstrap.css
+; stylesheets[all][] = css/bootstrap-glyphicons.css
+; stylesheets[all][] = css/overrides.css
+stylesheets[all][] = css/jquery-jvectormap-1.2.2.css
 stylesheets[all][] = css/style.css
 
 ; Scripts
+; scripts[] = js/bootstrap.js
 scripts[] = js/froogaloop.min.js
+scripts[] = js/xregexp-min.js
+scripts[] = js/unicode-base.js
+scripts[] = js/jquery-jvectormap-1.2.2.min.js
+scripts[] = js/views-json-helper.js
+scripts[] = js/partner-maps.js
 
 ;Breakpoints
 breakpoints[mobile] = (min-width: 0px)

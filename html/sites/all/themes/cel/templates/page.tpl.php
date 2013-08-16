@@ -107,14 +107,15 @@
 </div>
 
 <script>
+$ = jQuery;
 //Common JS
 var window_loaded = false;
 
-jQuery(window).load(function($) {
+$(window).load(function($) {
   window_loaded = true;
 });
 
-jQuery(document).ready(function($) {
+$(document).ready(function($) {
   $('body').on('click', 'a[data-toggle=collapse]', function (event) {
     // Prevent <a> collapse toggles from firing click events
     event.preventDefault();
@@ -188,7 +189,7 @@ function onYouTubeIframeAPIReady() {
     return;
   }
 
-  jQuery('.media-youtube-video iframe').each(function() {
+  $('.media-youtube-video iframe').each(function() {
     init_youtube_player.call(this);
   });
 }
@@ -228,7 +229,7 @@ function init_youtube_player() {
  * Used to pause/cycle carousels in which the Vimeo is embedded
  */
 function init_vimeo_player() {
-  var iframe = jQuery(this).get(0),
+  var iframe = $(this).get(0),
       player = $f(iframe);
 
   player.addEvent('ready', function() {
@@ -255,7 +256,7 @@ function init_vimeo_player() {
  * @var string state The state of the YouTube player
  */
 function toggle_carousel(iframe, state) {
-  iframe = jQuery(iframe);
+  iframe = $(iframe);
 
   if(!iframe.length) {
     return;

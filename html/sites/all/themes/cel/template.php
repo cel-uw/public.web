@@ -177,8 +177,9 @@ OUTPUT;
  *
  * @param array &$form
  * @param array &$form_state
+ * @param string $form_id
  */
-function cel_form_search_block_form_alter(&$form, &$form_state) {
+function cel_form_search_block_form_alter(&$form, &$form_state, $form_id) {
   $form['#attributes']['class'][] = 'navbar-form';
 }
 
@@ -400,4 +401,19 @@ EOL;
  */
 function cel_preprocess_picture_source(&$vars) {
   $vars['dimensions'] = array('width' => '100%');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for exposed filters in views.
+ *
+ * Change the partners default select from the unhelpful "- Any -" to "All partners".
+ *
+ * @param array &$form
+ * @param array &$form_state
+ * @param string $form_id
+ */
+function cel_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  if($form_state['view']->name === 'partners' && isset($form['field_current_value']['#options']['All'])) {
+    $form['field_current_value']['#options']['All'] = t('All partners');
+  }
 }
