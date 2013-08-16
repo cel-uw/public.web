@@ -8,7 +8,12 @@ window.cel = window.cel || {};
 window.cel.maps = (function($) {
 
   var maps = {}
-      loaded_map_types = {};
+      loaded_map_types = {},
+      levels = [ 
+        { name: 'country', validator: /^[A-Z]{2}$/ }, 
+        { name: 'province', validator: /^[A-Z0-9 \_\.]+$/i },
+        { name: 'county', validator: XRegExp('^\\p{L}+$') }
+      ]
 
   // Public methods
   /**
@@ -43,7 +48,8 @@ window.cel.maps = (function($) {
       'map': null,
       'partners': _format_partners(key),
       'map_types': [],
-      'current_filters': _get_view_filters(key)
+      'current_filters': _get_view_filters(key),
+      'level_index': 0
     };
 
     // Create the new container
@@ -53,7 +59,8 @@ window.cel.maps = (function($) {
 
     // Determine which map to use
     maps[key].map_types = _get_map_types(key);
-    _load_map_file(maps[key].map_types, function(map_type) {
+    _load_map_file(maps[key].map_types, function(map_type, level_index) {
+      maps[key].level_index = level_index;
       if(map_type) {
         maps[key].map = _load_map(key, container, map_type);
       }
@@ -64,11 +71,14 @@ window.cel.maps = (function($) {
    * Loads the best available map
    *
    * @param string map_type The type of map to try loading
+   * @param function callback The callback function that should be called when a map is loaded or none is found
+   * @param int level_index Used internally
    * @return string|bool The fully-qualified map type name, or false if it couldn't load the map file
    */
-  _load_map_file = function(map_types, callback) {
+  _load_map_file = function(map_types, callback, level_index) {
     var format = 'mill',
         lang = 'en',
+        level_index = level_index || map_types.length-1,
         map_type = map_types.shift();
 
     switch(map_type) {
@@ -84,7 +94,7 @@ window.cel.maps = (function($) {
 
     if(full_map_type in loaded_map_types) {
       // We had already loaded this map file
-      callback.call(that, loaded_map_types[full_map_type]);
+      callback.call(that, loaded_map_types[full_map_type], level_index);
       return;
     }
 
@@ -93,16 +103,22 @@ window.cel.maps = (function($) {
     .done(function(script, textStatus) {
       // Yay! We loaded our map
       loaded_map_types[full_map_type] = full_map_type;
-      callback.call(that, full_map_type);
+      callback.call(that, full_map_type, level_index);
     })
     .fail(function(jqxhr, settings, exception) {
       // No file to be found :(
       loaded_map_types[full_map_type] = false;
       // Try loading another one...
       if(map_types.length) {
-        _load_map_file(map_types, callback);
+        // Sometimes a country map will have regions, but not states, so let's try that
+        if(level_index === 1 && map_type.slice(-8) !== '_regions') {
+          map_types.unshift(map_type + '_regions');
+        } else {
+          level_index--;
+        }
+        _load_map_file(map_types, callback, level_index);
       } else {
-        callback.call(that, false);
+        callback.call(that, false, level_index);
       }
     });
   }
@@ -117,6 +133,34 @@ window.cel.maps = (function($) {
    */
   _load_map = function(key, container, map_type) {
     // Get data
+    var click_handler = function(event, code) {
+      if(!maps[key]) {
+        return;
+      }
+
+      // Let's see if we have a map for this specific code
+      var map_types = [ code ];
+      if(maps[key].level_index === 0) {
+        map_types.push(code + '_regions');
+      }
+
+      _load_map_file(map_types, function(map_type, level_index) {
+        if(map_type) {
+          var href = window.location.href;
+
+          if(href.substr(href.length-1) !== "/") {
+            href = href + "/";
+          }
+
+          var new_filter = code.split("-");
+          new_filter.splice(0, maps[key].current_filters.length);
+          new_filter.join("-");
+
+          window.location.href = href + new_filter;
+        }
+      });
+    }
+
     var map_options = {
       backgroundColor: 'transparent',
       map: map_type,
@@ -150,27 +194,10 @@ window.cel.maps = (function($) {
         );
       },
       // Load a map with this region, if possible
-      onRegionClick: function(event, code) {
-        if(!maps[key]) {
-          return;
-        }
-
-        // Let's see if we have a map for this specific code
-        _load_map_file([ code ], function(map_type) {
-          if(map_type) {
-            var href = window.location.href;
-
-            if(href.substr(href.length-1) !== "/") {
-              href = href + "/";
-            }
-
-            var new_filter = code.split("-");
-            new_filter.splice(0, maps[key].current_filters.length);
-            new_filter.join("-");
-
-            window.location.href = href + new_filter;
-          }
-        });
+      onRegionClick: click_handler,
+      onMarkerClick: function(event, index) {
+        var level_index = maps[key].level_index;
+        click_handler(event, maps[key].partners.pins[index].regions[level_index]);
       }
     }
 
@@ -213,82 +240,58 @@ window.cel.maps = (function($) {
    */
   _format_partners = function(key) {
     var partners = window.cel.json.get(key);
+
     partners = partners.partners || [];
 
     var pins = [],
-        countries = [],
-        provinces = [],
-        counties = [],
+        regions = [],
         by_region = {};
 
     for(var i=0, length=partners.length; i<length; i++) {
+      var region_key_array = [],
+          region_key = "",
+          pin_regions = [],
+          j = 0, level_length=levels.length;
+
+      for(; j<level_length; j++) {
+        var level = levels[j].name,
+            level_value = partners[i].partner[level] || false;
+
+        if(level_value) {
+          if(level === 'country' && level_value === 'GB') {
+            // jVectorMaps uses UK as the country code, which is wrong
+            level_value = 'UK';
+          }
+
+          region_key_array.push(level_value);
+          region_key = region_key_array.join("-");
+          
+          if($.inArray(region_key <= -1)) {
+            regions.push(region_key);
+          }
+
+          if(!by_region[region_key]) {
+            by_region[region_key] = {
+              name: level_value,
+              filters: region_key_array,
+              partner_titles: []
+            };
+          }
+          by_region[region_key].partner_titles.push(partners[i].partner.title);
+          pin_regions.push(region_key);
+        }
+      }
+
       pins.push({
         latLng: [ partners[i].partner.lat, partners[i].partner['long'] ],
-        name: partners[i].partner.title
+        name: partners[i].partner.title,
+        regions: pin_regions
       });
-
-      var country  = partners[i].partner.country,
-          province = partners[i].partner.province,
-          county = partners[i].partner.county;
-
-      if(country === 'GB') {
-        // They don't use the real country code, but the fake one :-O
-        country = 'UK';
-      }
-
-      if(country) {
-        if($.inArray(country, countries) <= -1) {
-          countries.push(country);
-        }
-
-        if(!by_region[country]) {
-          by_region[country] = {
-            name: country,
-            filters: [ country ],
-            partner_titles: []
-          };
-        }
-        by_region[country].partner_titles.push(partners[i].partner.title);
-      }
-
-      if(province) {
-        var province_key = country + "-" + province;
-        if($.inArray(province_key, provinces) <= -1) {
-          provinces.push(province_key);
-        }
-
-        if(!by_region[province_key]) {
-          by_region[province_key] = {
-            name: province,
-            filters: [ country, province ],
-            partner_titles: []
-          };
-        }
-        by_region[province_key].partner_titles.push(partners[i].partner.title);
-      }
-
-      if(county) {
-        var county_key = country + "-" + province + "-" + county;
-        if($.inArray(county_key, counties) <= -1) {
-          counties.push(county_key);
-        }
-
-        if(!by_region[county_key]) {
-          by_region[county_key] = {
-            name: county,
-            filters: [ country, province, county ],
-            partner_titles: []
-          };
-        }
-        by_region[county_key].partner_titles.push(partners[i].partner.title);
-      }
     }
 
     return {
       'pins': pins,
-      'countries': countries,
-      'provinces': provinces,
-      'counties': counties,
+      'regions': regions,
       'by_region': by_region
     }
   }
@@ -311,31 +314,16 @@ window.cel.maps = (function($) {
     filters = filters || _get_view_filters(key);
 
     var map_types = [ 'world' ],
-        country_filter = filters[0] || false,
-        province_filter = filters[1] || false,
-        county_filter = filters[2] || false;
+        filter_array = [];
 
-    // Validate filters
-    var country_validator = /^[A-Z]{2}$/,
-        province_validator = /^[A-Z0-9 \-\_\.]+$/i,
-        county_validator = XRegExp('^\\p{L}+$');
-    country_filter = country_validator.test(country_filter) ? country_filter : false;
-    province_filter = province_validator.test(province_filter) ? province_filter : false;
-    county_filter = county_validator.test(county_filter) ? county_filter : false;
+    for(var i=0, length=levels.length; i<length; i++) {
+      var validator = levels[i].validator
+          filter_value = filters[i] || false,
+          filter_value = validator.test(filter_value) ? filter_value : false;
 
-    if(country_filter) {
-      // We should use a country
-      map_types.unshift(country_filter + '_regions');
-      map_types.unshift(country_filter);
-
-      if(province_filter) {
-        // We should use a province
-        map_types.unshift(country_filter + '-' + province_filter);
-
-        if(county_filter) {
-          // We should use a county
-          map_types.unshift(country_filter + '-' + province_filter + '-' + county_filter);
-        }
+      if(filter_value) {
+        filter_array.push(filter_value)
+        map_types.unshift(filter_array.join("-"));
       }
     }
 
