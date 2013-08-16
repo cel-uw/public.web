@@ -55,6 +55,7 @@ function wl_form_system_theme_settings_alter(&$form, $form_state, $form_id = NUL
     '#type' => 'select',
     '#title' => t('Bootstrap version'),
     '#options' => array(
+      '3.0.0-wip' => 'v3.0.0-wip',
       '3.0.0-rc1' => 'v3.0.0-rc1',
       '2.3.2' => 'v2.3.2',
       '2.3.1' => 'v2.3.1',

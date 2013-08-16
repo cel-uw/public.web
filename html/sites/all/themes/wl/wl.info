@@ -18,7 +18,7 @@ settings[toggle_search] = 1
 
 ; Settings for Bootstrap
 settings[cdn_bootstrap] = 1
-settings[cdn_bootstrap_version] = 3.0.0-rc1
+settings[cdn_bootstrap_version] = 3.0.0-wip
 
 ; Settings for the jQuery CDN
 settings[cdn_jquery] = 1
@@ -27,9 +27,9 @@ settings[cdn_jquery_migrate] = 1
 settings[cdn_jquery_migrate_version] = 1.2.1
 
 ; CSS
+; stylesheets[all][] = css/bootstrap.css
 stylesheets[all][] = css/bootstrap-glyphicons.css
 stylesheets[all][] = css/overrides.css
-stylesheets[all][] = css/style.css
 
 ; Scripts
 scripts[] = js/spin.js

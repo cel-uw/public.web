@@ -452,3 +452,8 @@ div.password-suggestions ul
 {
   float: none!important;
 }
+
+.contextual-links-region .view-content .contextual-links-wrapper
+{
+  top: 18px;
+}
