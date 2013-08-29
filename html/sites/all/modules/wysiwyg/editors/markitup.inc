@@ -26,6 +26,7 @@ function wysiwyg_markitup_editor() {
     ),
     'version callback' => 'wysiwyg_markitup_version',
     'themes callback' => 'wysiwyg_markitup_themes',
+    'settings form callback' => 'wysiwyg_markitup_settings_form',
     'settings callback' => 'wysiwyg_markitup_settings',
     'plugin callback' => 'wysiwyg_markitup_plugins',
     'versions' => array(
@@ -79,6 +80,14 @@ function wysiwyg_markitup_version($editor) {
  */
 function wysiwyg_markitup_themes($editor, $profile) {
   return array('simple', 'markitup');
+}
+
+/**
+ * Enhances the editor profile settings form for markItUp.
+ */
+function wysiwyg_markitup_settings_form(&$form, &$form_state) {
+  $form['basic']['language']['#access'] = FALSE;
+  $form['css']['#access'] = FALSE;
 }
 
 /**
