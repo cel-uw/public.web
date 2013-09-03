@@ -1,4 +1,5 @@
-html.overlay-open .navbar-fixed-top
+html.overlay-open .navbar-fixed-top,
+html.overlay-open .navbar
 {
   z-index:400
 }

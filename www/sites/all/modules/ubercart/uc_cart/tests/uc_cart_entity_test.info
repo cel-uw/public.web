@@ -1,0 +1,11 @@
+name = Cart item entity test module
+core = 7.x
+dependencies[] = uc_cart
+hidden = TRUE
+
+; Information added by drupal.org packaging script on 2013-07-11
+version = "7.x-3.5"
+core = "7.x"
+project = "ubercart"
+datestamp = "1373562071"
+

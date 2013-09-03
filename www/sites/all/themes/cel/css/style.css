@@ -111,7 +111,7 @@ img
   display: block;
   width: 100%;
   height: 100%;
-  background: #fff url(../images/logo.png) center center no-repeat;
+  background: #fff url(../images/logo.png) top left no-repeat;
 }
 
 .navbar
@@ -308,6 +308,18 @@ img
 }
 
 
+#secondary-navbar-wrapper
+{
+  padding-top: 10px;
+}
+
+#secondary-navbar-wrapper .navbar-nav>li>a
+{
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+
 #footer
 {
   padding: 15px 0;
@@ -318,19 +330,10 @@ img
 .footer-menu
 {
   color: #fff;
-  text-align: justify;
-}
-
-.footer-menu:after
-{
-  content: "";
-  display: inline-block;
-  width: 100%;
 }
 
 .footer-menu-item
 {
-  display: inline-block;
   vertical-align: top;
 }
 
@@ -566,12 +569,6 @@ fieldset[disabled] .btn-primary.active {
 /**
  * Front page
  */
-
- .front #navbar-wrapper
- {
-  display: none;
- }
-
 .front #main-container > .row > .col-sm-12 > .contextual-links-region > .panel-display > .panel-row-top .panel-bootstrap-2col-66-33-stacked,
 .front #main-container > .row > .col-sm-12 > .panel-display > .panel-row-top .panel-bootstrap-2col-66-33-stacked
 {

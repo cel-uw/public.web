@@ -1,7 +1,18 @@
 <header id="banner" role="banner">
   <div class="container">
     <div class="row logo-row">
-      <div class="col-sm-12">
+      <div class="col-sm-6 col-sm-push-6">
+        <div id="secondary-navbar-wrapper">
+          <div class="nav-collapse navbar-responsive-collapse">
+            <nav role="navigation">
+            <?php if (!empty($secondary_nav)): ?>
+              <?php print render($secondary_nav); ?>
+            <?php endif; ?>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-sm-pull-6">
         <h1 id="site-name">
           <a href="<?php print $front_page; ?>">
             <span class="hide-text">
@@ -24,7 +35,7 @@
             <span class="icon-bar"></span>
           </button>
 
-          <div class="nav-collapse collapse navbar-responsive-collapse">
+          <div class="nav-collapse navbar-responsive-collapse">
             <nav role="navigation">
             <?php if (!empty($primary_nav)): ?>
               <?php print render($primary_nav); ?>
@@ -83,7 +94,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-sm-12">
+      <div class="col-sm-push-1 col-sm-10">
         <?php print render($page['footer']); ?>
         <nav role="navigation">
           <?php if (!empty($footer_nav)): ?>

@@ -5,7 +5,8 @@ version = 7.x-1.0
 base theme = wl
 
 ; Regions
-regions[navigation]     = 'Navigation'
+regions[navigation]     = 'Primary Navigation'
+regions[secondary_navigation] = 'Secondary Navigation'
 regions[header]         = 'Top Bar'
 regions[help]           = 'Help'
 regions[content]        = 'Content'

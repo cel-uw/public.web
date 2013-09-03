@@ -22,6 +22,13 @@ function cel_preprocess_page(&$vars) {
     );
   }
 
+  if(empty($vars['secondary_nav'])) {
+    $vars['secondary_nav'] = array(
+      '#sorted' => true,
+      '#theme_wrappers' => array('menu_tree__secondary'),
+    );
+  }
+
   // Primary nav
   $vars['footer_nav'] = FALSE;
   // Build links
@@ -30,51 +37,13 @@ function cel_preprocess_page(&$vars) {
   $vars['footer_nav']['#theme_wrappers'] = array('menu_tree__footer');
 
   if(!empty($vars['page']['navigation'])) {
-    // Find the last link
-    // This seems to be the safest, if most inefficient, option
-    $splice_offset = 0;
-    foreach($vars['primary_nav'] as $key=>$link) {
-      $splice_offset++;
-      if(!isset($link['#theme'], $link['#attributes']['class']) || $link['#theme'] != 'menu_link__main_menu') {
-        continue;
-      }
-
-      $last = array_search('last', $link['#attributes']['class'], true);
-      if($last !== false) {
-        unset($vars['primary_nav'][$key]['#attributes']['class'][$last]);
-        break;
-      }
-    }
-
-    // Prep our navigation content
-    $last_key = NULL;
-    foreach($vars['page']['navigation'] as $key=>$value) {
-      if($key[0] === "#") {
-        unset($vars['page']['navigation'][$key]);
-        continue;
-      }
-
-      $last_key = $key;
-    }
-
-    foreach($vars['page']['navigation'] as $key=>$value) {
-      $classes = "leaf";
-      if($key === $last_key) {
-        $classes .= " last";
-      }
-
-      if(empty($vars['page']['navigation'][$key]['#theme'])) {
-        $vars['page']['navigation'][$key]['#theme'] = array();
-      }
-
-      $vars['page']['navigation'][$key]['#theme'][] = 'menu_link__main_menu';
-      $vars['page']['navigation'][$key]['#prefix'] = "<li class=\"{$classes}\">";
-      $vars['page']['navigation'][$key]['#suffix'] = '</li>';
-    }
-
-    // Splice in our navigation content
-    array_splice($vars['primary_nav'], $splice_offset, 0, $vars['page']['navigation']);
+    $vars['primary_nav'] = _cel_merge_nav_and_block($vars['primary_nav'], $vars['page']['navigation'], array('#theme' => array('menu_link__main_menu')));
     unset($vars['page']['navigation']);
+  }
+
+  if(!empty($vars['page']['secondary_navigation'])) {
+    $vars['secondary_nav'] = _cel_merge_nav_and_block($vars['secondary_nav'], $vars['page']['secondary_navigation'], array('#theme' => array('menu_link__secondary_menu')));
+    unset($vars['page']['secondary_navigation']);
   }
 }
 
@@ -173,6 +142,66 @@ OUTPUT;
 }
 
 /**
+ * Merge the contents of a block into the links in a menu
+ *
+ * @param array $menu The menu to merge into
+ * @param array $block The block to merge
+ * @param array $block_settings Any settings to add to the merged in block
+ * @return array The modified menu
+ */
+function _cel_merge_nav_and_block($menu, $block, $block_settings = array()) {
+  // Find the last link
+  // This seems to be the safest, if most inefficient, option
+  $splice_offset = 0;
+  foreach($menu as $key=>$link) {
+    $splice_offset++;
+    if(!isset($link['#theme'], $link['#attributes']['class'])) {
+      continue;
+    }
+
+    $last = array_search('last', $link['#attributes']['class'], true);
+    if($last !== false) {
+      unset($menu[$key]['#attributes']['class'][$last]);
+      break;
+    }
+  }
+
+  // Prep our navigation content
+  $last_key = NULL;
+  foreach($block as $key=>$value) {
+    if($key[0] === "#") {
+      unset($block[$key]);
+      continue;
+    }
+
+    $last_key = $key;
+  }
+
+  foreach($block as $key=>$value) {
+    $classes = "leaf";
+    if($key === $last_key) {
+      $classes .= " last";
+    }
+
+    if(empty($block[$key]['#theme'])) {
+      $block[$key]['#theme'] = array();
+    }
+
+    $block[$key]['#prefix'] = "<li class=\"{$classes}\">";
+    $block[$key]['#suffix'] = '</li>';
+    foreach($block_settings as $setting=>$settings) {
+      if(isset($block[$key][$setting]) && is_array($block[$key][$setting])) {
+        $block[$key][$setting] = array_merge($block[$key][$setting], $settings);
+      }
+    }
+  }
+
+  // Splice in our navigation content
+  array_splice($menu, $splice_offset, 0, $block);
+  return $menu;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter() for search_form().
  *
  * @param array &$form
@@ -197,12 +226,21 @@ function cel_menu_tree__primary(&$vars) {
  *
  * @param array &$vars
  */
+function cel_menu_tree__secondary(&$vars) {
+  return '<ul class="menu nav navbar-nav nav-justified">' . $vars['tree'] . '</ul>';
+}
+
+/**
+ * Bootstrap theme wrapper function for the primary menu links
+ *
+ * @param array &$vars
+ */
 function cel_menu_tree__footer(&$vars) {
   return '<div class="row footer-menu">' . $vars['tree'] . '</div>';
 }
 
 /**
- * Renders the HTML for side menus
+ * Renders the HTML for the main menu
  *
  * @param array $vars
  * @return string The HTML to render
@@ -379,7 +417,7 @@ EOL;
     case 1:
       // Top level
       $output = l($element['#title'], $element['#href'], $element['#localized_options']);
-      return '<div class="footer-menu-item"><h3' . drupal_attributes($element['#attributes']) . '>' . $output . '</h3>' . $sub_menu . "</div>\n";
+      return '<div class="footer-menu-item col-sm-3"><h3' . drupal_attributes($element['#attributes']) . '>' . $output . '</h3>' . $sub_menu . "</div>\n";
       break;
 
     default:
