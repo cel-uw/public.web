@@ -1,1 +1,0 @@
-<div class="views-field-title"><span class="field-content"><a href="<?php print $row->aggregator_feed_link; ?>" target="_blank"><?php print $row->aggregator_item_title; ?></a></span></div>
