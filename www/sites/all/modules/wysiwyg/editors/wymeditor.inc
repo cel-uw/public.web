@@ -128,7 +128,11 @@ function wysiwyg_wymeditor_settings($editor, $config, $theme) {
     'wymPath' => $editor['libraries'][$library]['files'][0],
     // @todo Does not work in Drupal; jQuery can live anywhere.
     'jQueryPath' => base_path() . 'misc/jquery.js',
-    'updateSelector' => '.form-submit',
+    // WYMeditor's update event handler will revert the field contents if
+    // changes were made after it was detached. Wysiwyg takes care of submit
+    // events anyway so make sure WYMeditor does not bind it anywhere.
+    'updateSelector' => '#wysiwyg-no-element',
+    'updateEvent' => 'wysiwyg-no-event',
     'skin' => $theme,
   );
 

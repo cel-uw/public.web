@@ -24,6 +24,7 @@ function wysiwyg_markitup_editor() {
         'files' => array('markitup/jquery.markitup.pack.js'),
       ),
     ),
+    'install note callback' => 'wysiwyg_markitup_install_note',
     'version callback' => 'wysiwyg_markitup_version',
     'themes callback' => 'wysiwyg_markitup_themes',
     'settings form callback' => 'wysiwyg_markitup_settings_form',
@@ -36,6 +37,13 @@ function wysiwyg_markitup_editor() {
     ),
   );
   return $editor;
+}
+
+/**
+ * Return an install note.
+ */
+function wysiwyg_markitup_install_note() {
+  return '<p class="warning">' . t('Only rename the extracted folder from "latest" to "markitup", no other changes needed.') . '</p>';
 }
 
 /**
