@@ -1,0 +1,363 @@
+﻿<?php
+
+/**
+ * @file
+ * Integrates Ubercart with the Virtual Merchant credit card payment gateway.
+ *
+ * Ubercart Setup Instructions:
+ *
+ * You must browse to the payment gateway settings form and enter your login
+ * credentials you use when signing into the web terminal. At Virtual Merchant
+ * under the Terminal > Merchant > Payment fields menu item, you need to look at
+ * all the payment fields and ensure that only fields beginning with ssl_ are
+ * enabled. If a field such as the CreditCard field is enabled, you will get an
+ * error message when processing payments.
+ */
+
+
+/**
+ * Implementation of hook_payment_gateway(). (Ubercart)
+ */
+function virtualmerchant_uc_payment_gateway() {
+  $gateways = array();
+
+  $gateways['virtualmerchant'] = array(
+    'title' => t('Virtual Merchant'),
+    'description' => t('Process credit card transactions through Virtual Merchant.'),
+    'credit' => 'virtualmerchant_charge',
+  	'settings' => 'virtualmerchant_settings_form',
+    'credit_txn_types' => array(UC_CREDIT_AUTH_ONLY, UC_CREDIT_AUTH_CAPTURE),
+  );
+
+  return $gateways;
+}
+
+/**
+ * Build the settings form for the Virtual Merchant Ubercart gateway.
+ */
+function virtualmerchant_settings_form() {
+  $form = array();
+
+  $form['api'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('API access credentials'),
+  );
+
+  $form['api']['virtualmerchant_merchant_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Merchant ID'),
+    '#description' => t('Your merchant ID is the Account number you use to login at Virtual Merchant.'),
+    '#default_value' => variable_get('virtualmerchant_merchant_id', ''),
+  );
+  $form['api']['virtualmerchant_user_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('User ID'),
+    '#description' => t('Same as the user ID you use to login at Virtual Merchant.'),
+    '#default_value' => variable_get('virtualmerchant_user_id', ''),
+  );
+  $form['api']['virtualmerchant_pin'] = array(
+    '#type' => 'textfield',
+    '#title' => t('PIN'),
+    '#description' => t('Found through the User > Change PIN menu item at Virtual Merchant.'),
+    '#default_value' => variable_get('virtualmerchant_pin', ''),
+  );
+
+  $form['virtualmerchant_transaction_mode'] = array(
+    '#type' => 'radios',
+    '#title' => t('Transaction mode'),
+    '#description' => t('Make sure you update to production mode when your site goes live!'),
+    '#options' => array(
+      'production' => t('Production'),
+      'test' => t('Test'),
+      'demo' => t('Demo server'),
+    ),
+    '#default_value' => variable_get('virtualmerchant_transaction_mode', 'test'),
+  );
+
+  $form['virtualmerchant_ship_to'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Submit shipping information to Virtual Merchant.'),
+    '#default_value' => variable_get('virtualmerchant_ship_to', FALSE),
+  );
+
+  $form['virtualmerchant_referer_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Authorized referring URL'),
+    '#description' => t('Must be an authorized referer entered in the System Setup form. Leave blank if disabled.'),
+    '#default_value' => variable_get('virtualmerchant_referer_url', ''),
+  );
+
+  return $form;
+}
+
+/**
+ * Process an Ubercart transaction through the Virtual Merchant gateway.
+ */
+function virtualmerchant_charge($order_id, $amount, $data) {
+  global $user;
+
+  // Load the full order object.
+  $order = uc_order_load($order_id);
+
+  // Prepare a description of the order.
+  $description = array();
+
+  foreach ((array) $order->products as $product) {
+    $prod_desc = $product->title .' x'. $product->qty;
+
+    if(array_key_exists('attributes', array($product)) == true) { // added to adapt to Ubercart Product Attributes module not being on.
+	    foreach ((array) $product->data['attributes'] as $key => $value) {
+	      if (is_array($value)) {
+	        $value = array_shift($value);
+	      }
+	
+	      $prod_desc .= ', '. $key .': '. $value;
+	    }
+    }
+
+    $description[] = $prod_desc;
+  }
+
+  // Load the billing country data.
+  $billing_country = uc_get_country_data(array('country_id' => $order->billing_country));
+
+  // Prepare the parameters that we will submit to process the transaction.
+  $param = array(
+    // Transaction information.
+    'ssl_test_mode' => 'FALSE',
+    'ssl_transaction_type' => virtualmerchant_txn_type($data['txn_type']),
+
+    // API access credentials.
+    'ssl_merchant_id' => variable_get('virtualmerchant_merchant_id', ''),
+    'ssl_pin' => variable_get('virtualmerchant_pin', ''),
+    'ssl_user_id' => variable_get('virtualmerchant_user_id', ''),
+
+    // Transaction amount.
+    'ssl_amount' => uc_currency_format($amount, FALSE, FALSE),
+    'ssl_salestax'=> '0', // Always passed as 0 for the merchant provided form.
+
+    // Payment details.
+    'ssl_card_number' => $order->payment_details['cc_number'],
+    'ssl_exp_date' => sprintf('%02d%02d', $order->payment_details['cc_exp_month'], substr($order->payment_details['cc_exp_year'], -2)),
+
+    // Order details.
+    'ssl_description' => substr(implode(' / ', $description), 0, 255),
+    'ssl_invoice_number' => $order_id,
+    'ssl_customer_code' => $order->uid,
+
+    // Billing address.
+    'ssl_company' => substr($order->billing_company, 0, 50),
+    'ssl_first_name' => substr($order->billing_first_name, 0, 20),
+    'ssl_last_name' => substr($order->billing_last_name, 0, 30),
+    'ssl_avs_address' => substr($order->billing_street1, 0, 20),
+    'ssl_address2' => substr($order->billing_street2, 0, 30),
+    'ssl_city' => substr($order->billing_city, 0, 30),
+    'ssl_state' => substr(uc_get_zone_code($order->billing_zone), 0, 30),
+    'ssl_avs_zip' => substr($order->billing_postal_code, 0, 9),
+    'ssl_country' => !$billing_country ? '' : substr($billing_country[0]['country_iso_code_3'], 0, 50),
+    'ssl_phone' => substr($order->billing_phone, 0, 20),
+    'ssl_email' => substr($order->primary_email, 0, 100),
+
+    // Payment configuration.
+    'ssl_show_form' => 'FALSE',
+    // 'ssl_receipt_link_method' => 'GET',
+    'ssl_result_format' => 'ASCII',
+    // 'ssl_receipt_link_url' => url('<front>', array('absolute' => TRUE)),
+  );
+
+  // Update the order for test mode if enabled.
+  if (variable_get('virtualmerchant_transaction_mode', 'test') != 'production') {
+    $param['ssl_test_mode'] = 'TRUE';
+
+    // When testing, amount must be less than $50.
+    if ($param['ssl_amount'] >= 50) {
+      $param['ssl_amount'] = '49.99';
+    }
+  }
+
+  // Include the CVV data if enabled.
+  if (variable_get('uc_credit_cvv_enabled', TRUE)) {
+    $param['ssl_cvv2cvc2_indicator'] = '1';
+    $param['ssl_cvv2cvc2'] = $order->payment_details['cc_cvv'];
+  }
+
+  // Include the shipping address if specified.
+  if (variable_get('virtualmerchant_ship_to', FALSE)) {
+    // Load the shipping country data.
+    $delivery_country = uc_get_country_data(array('country_id' => $order->delivery_country));
+
+    $param += array(
+      'ssl_ship_to_company' => substr($order->delivery_company, 0, 50),
+      'ssl_ship_to_first_name' => substr($order->delivery_first_name, 0, 20),
+      'ssl_ship_to_last_name' => substr($order->delivery_last_name, 0, 30),
+      'ssl_ship_to_address1' => substr($order->delivery_street1, 0, 20),
+      'ssl_ship_to_address2' => substr($order->delivery_street2, 0, 30),
+      'ssl_ship_to_city' => substr($order->delivery_city, 0, 30),
+      'ssl_ship_to_state' => substr(uc_get_zone_code($order->delivery_zone), 0, 30),
+      'ssl_ship_to_zip' => substr($order->delivery_postal_code, 0, 9),
+      'ssl_ship_to_country' => !$delivery_country ? '' : substr($delivery_country[0]['country_iso_code_3'], 0, 50),
+      'ssl_ship_to_phone' => substr($order->delivery_phone, 0, 20),
+    );
+  }
+
+  // Set the proper URL based on the transaction mode.
+  if (variable_get('virtualmerchant_transaction_mode', 'test') != 'production') {
+    $url = 'https://demo.myvirtualmerchant.com/VirtualMerchantDemo/process.do';
+  }
+  else {
+    $url = 'https://www.myvirtualmerchant.com/VirtualMerchant/process.do';
+  }
+
+  // Setup the cURL request.
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_VERBOSE, 1);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($param, '', '&'));
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+  curl_setopt($ch, CURLOPT_NOPROGRESS, 1);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+
+  $referer = variable_get('virtualmerchant_referer_url', '');
+
+  if (!empty($referer)) {
+    curl_setopt($ch, CURLOPT_REFERER, $referer);
+  }
+
+  $result = curl_exec($ch);
+
+  // Log any errors to the watchdog.
+  if ($error = curl_error($ch)) {
+    watchdog('virtualmerchant', 'cURL error: @error', array('@error' => $error), WATCHDOG_ERROR);
+    return array('success' => FALSE);
+  }
+  curl_close($ch);
+
+  // Put the results into an associative array.
+  parse_str(str_replace(array("\r", "\n"), array('', '&'), trim($result)), $response);
+
+  // First check for an error message.
+  if (!empty($response['errorCode'])) {
+    return array('message' => t('@name (@code) - @message.', array('@code' => $response['errorCode'], '@name' => $response['errorName'], '@message' => $response['errorMessage'])), 'success' => FALSE);
+  }
+
+  if ($response['ssl_result'] != '0') {
+    // Fail the charge with the reason text in the decline message.
+    $result = array(
+      'success' => FALSE,
+      'message' => t('Credit card payment declined: !response', array('!response' => '<pre>'. check_plain(print_r($response, TRUE)))),
+      'uid' => $user->uid,
+    );
+  }
+  else {
+    // Build a message for display and comments in the payments table.
+    $message = t('Type: @type<br />ID: @id', array('@type' => virtualmerchant_txn_type($data['txn_type']), '@id' => $response['ssl_txn_id']));
+
+    $result = array(
+      'success' => TRUE,
+      'comment' => $message,
+      'message' => $message,
+      'data' => array('module' => 'virtualmerchant', 'txn_type' => virtualmerchant_txn_type($data['txn_type']), 'txn_id' => $response['ssl_txn_id']),
+      'uid' => $user->uid,
+    );
+  
+    // If this was an authorization only transaction...
+    if ($data['txn_type'] == UC_CREDIT_AUTH_ONLY) {
+      // Log the authorization to the order.
+      uc_credit_log_authorization($order->order_id, $response['ssl_txn_id'], $amount);
+    }
+  }
+  
+  // Don't log this as a payment money wasn't actually captured.
+  if (in_array($data['txn_type'], array(UC_CREDIT_AUTH_ONLY))) {
+    $result['log_payment'] = FALSE;
+  }
+
+  $comment = t('<b>@type</b><br /><b>@status:</b> @code<br /><b>Amount:</b> @amount<br /><b>AVS response:</b> @avs',
+    array(
+    	'@type' => virtualmerchant_txn_type_text($data['txn_type']), 
+    	'@status' => $response['ssl_result'] == '0' ? t('Accepted') : t('Rejected'), 
+    	'@code' => $response['ssl_approval_code'], 
+    	'@amount' => uc_currency_format($response['ssl_amount']), 
+    	'@avs' => virtualmerchant_avs_response_text($response['ssl_avs_response']))); // what's the new uc_price()?
+
+  // Add the CVV response if enabled.
+  if (variable_get('uc_credit_cvv_enabled', TRUE)) {
+    $comment .= '<br />'. t('<b>CVV match:</b> @cvv', array('@cvv' => virtualmerchant_cvv_response_text($response['ssl_cvv2_response'])));
+  }
+  
+  // Save the comment to the order.
+  uc_order_comment_save($order->order_id, $user->uid, $comment, 'admin');
+
+  return $result;
+}
+
+/**
+ * Return the Virtual Merchant string for a CC transaction type.
+ */
+function virtualmerchant_txn_type($txn_type) {
+  switch ($txn_type) {
+    case UC_CREDIT_AUTH_ONLY:
+      return 'CCAUTHONLY';
+    case UC_CREDIT_AUTH_CAPTURE:
+      return 'CCSALE';
+  }
+}
+
+/**
+ * Return a human readable string for a CC transaction type.
+ */
+function virtualmerchant_txn_type_text($txn_type) {
+  switch ($txn_type) {
+    case UC_CREDIT_AUTH_ONLY:
+      return t('Credit card authorization');
+    case UC_CREDIT_AUTH_CAPTURE:
+      return t('Credit card sale');
+  }
+}
+
+/**
+ * Return a human readable string for an AVS response.
+ */
+function virtualmerchant_avs_response_text($code) {
+  // Build an array defining all the possible response codes.
+  $codes = array(
+    'A' => t('Address matches - Zip Code does not match.'),
+    'B' => t('Street address match, Postal code in wrong format. (International issuer)'),
+    'C' => t('Street address and postal code in wrong formats'),
+    'D' => t('Street address and postal code match (international issuer)'),
+    'E' => t('AVS Error'),
+    'G' => t('Service not supported by non-US issuer'),
+    'I' => t('Address information not verified by international issuer.'),
+    'M' => t('Street Address and Postal code match (international issuer)'),
+    'N' => t('No Match on Address (Street) or Zip'),
+    'O' => t('No Response sent'),
+    'P' => t('Postal codes match, Street address not verified due to incompatible formats.'),
+    'R' => t('Retry, System unavailable or Timed out'),
+    'S' => t('Service not supported by issuer'),
+    'U' => t('Address information is unavailable'),
+    'W' => t('9 digit Zip matches, Address (Street) does not match.'),
+    'X' => t('Exact AVS Match'),
+    'Y' => t('Address (Street) and 5 digit Zip match.'),
+    'Z' => t('5 digit Zip matches, Address (Street) does not match.'),
+  );
+
+  return $codes[$code];
+}
+
+/**
+ * Return a human readable string for a CVV response.
+ */
+function virtualmerchant_cvv_response_text($code) {
+  // Build an array defining all the possible response codes.
+  $codes = array(
+    'M' => t('CVV2 Match'),
+    'N' => t('CVV2 No match'),
+    'P' => t('Not Processed'),
+    'S' => t('CVV2 data should be present on the card, but the merchant has indicated that it is not.'),
+    'U' => t('Issuer has not certified for CVV2 or Issuer has not provided Visa with the CVV2 encryption keys.'),
+  );
+
+  return $codes[$code];
+}
